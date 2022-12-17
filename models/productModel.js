@@ -52,8 +52,11 @@ const ProductSchema = new mongoose.Schema(
 			min: 1,
 			max: 5,
 		},
-		reviews: {
-			type: [mongoose.Schema.Types.ObjectId],
+		numOfReviews: {
+			type: Number,
+			required: true,
+			default: 0,
+			min: 0,
 		},
 		specs: {
 			type: [SpecSchema],
@@ -66,8 +69,20 @@ const ProductSchema = new mongoose.Schema(
 	},
 	{
 		timestamps: true,
+		toJSON: { virtuals: true },
+		toObject: { virtuals: true },
 	}
 )
+
+ProductSchema.virtual("reviews", {
+	ref: "Review",
+	foreignField: "product",
+	localField: "_id",
+	justOne: false,
+})
+// ProductSchema.virtual("reviews").get(async function () {
+// 	return await this.model("Review").find({ product: this._id })
+// })
 
 const Products = new mongoose.model("Product", ProductSchema)
 module.exports = { Products }
