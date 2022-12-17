@@ -22,10 +22,14 @@ const getSingleProduct = async (req, res) => {
 		.populate({
 			path: "reviews",
 			select: "title comment rating",
+			populate: {
+				path: "author",
+				select: "email username avatar",
+			},
 		})
 		.populate({
 			path: "vendor",
-			select: "username firstName lastName avatar",
+			select: "email username avatar",
 		})
 	if (!product) {
 		throw new NotFoundError(`no product with id = ${id}`)
