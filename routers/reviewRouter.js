@@ -11,7 +11,7 @@ const router = express.Router()
 router.route("/").get(getAllReviews).post(createReview)
 
 router
-	.route("/:reviewId")
+	.route("/:id")
 	.get(getSingleReview)
 	.patch(updateSingleReview)
 	.delete(deleteSingleReview)
