@@ -25,8 +25,10 @@ app.use(xss())
 app.use(
 	cors({
 		credentials: true,
-		origin: ["http://localhost:5173"],
-		methods: ["GET", "POST", "DELETE", "PATCH"],
+		// origin: ["http://localhost:5173"],
+		origin: true,
+		methods: ["GET", "POST"],
+		allowedHeaders: ["Content-Type", "Authorization"],
 	})
 )
 
