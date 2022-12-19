@@ -1,6 +1,8 @@
 const { verifyToken } = require("../utils/jwt")
 
 const authMiddleware = async (req, res, next) => {
+	console.log(req.signedCookies)
+	console.log(req.cookies)
 	const { token } = req.cookies
 
 	const decoded = verifyToken(token)
