@@ -22,7 +22,11 @@ const app = express()
 const port = process.env.PORT || 3000
 
 app.use(xss())
-app.use(cors())
+app.use(
+	cors({
+		credentials: true,
+	})
+)
 app.use(helmet())
 app.use(morgan("dev"))
 app.use(express.json())
