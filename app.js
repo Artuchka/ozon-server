@@ -29,6 +29,9 @@ app.use(
 		methods: ["GET", "POST", "DELETE", "PATCH"],
 	})
 )
+
+app.set("trust proxy", 1) // trust first proxy
+
 app.use(helmet())
 app.use(morgan("dev"))
 app.use(express.json())

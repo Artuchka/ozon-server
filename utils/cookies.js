@@ -3,6 +3,7 @@ const attachCookies = async ({ res, token }) => {
 	res.cookie("token", token, {
 		expires: new Date(Date.now() + oneDay),
 		httpOnly: false,
+		secure: true,
 	})
 }
 const clearCookies = async ({ res }) => {
