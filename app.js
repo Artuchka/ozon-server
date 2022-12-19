@@ -23,10 +23,11 @@ const port = process.env.PORT || 3000
 
 app.use(xss())
 app.use(
-	cors()
-	// {
-	// 	credentials: true,
-	// }
+	cors({
+		credentials: true,
+		origin: ["http://localhost:5173"],
+		methods: ["GET", "POST", "DELETE", "PATCH"],
+	})
 )
 app.use(helmet())
 app.use(morgan("dev"))
