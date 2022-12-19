@@ -30,7 +30,7 @@ app.use(
 	})
 )
 
-app.set("trust proxy", 1) // trust first proxy
+// app.set("trust proxy", 1) // trust first proxy
 
 app.use(helmet())
 app.use(morgan("dev"))
