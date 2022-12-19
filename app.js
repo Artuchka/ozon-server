@@ -23,9 +23,10 @@ const port = process.env.PORT || 3000
 
 app.use(xss())
 app.use(
-	cors({
-		credentials: true,
-	})
+	cors()
+	// {
+	// 	credentials: true,
+	// }
 )
 app.use(helmet())
 app.use(morgan("dev"))
