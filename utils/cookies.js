@@ -3,7 +3,26 @@ const attachCookies = async ({ res, token }) => {
 	res.cookie("token", token, {
 		expires: new Date(Date.now() + oneDay),
 		httpOnly: false,
+		sameSite: "none",
 		secure: true,
+	})
+	res.cookie("test1", token, {
+		expires: new Date(Date.now() + oneDay),
+		httpOnly: false,
+		sameSite: "none",
+		secure: true,
+	})
+	res.cookie("test2", token, {
+		expires: new Date(Date.now() + oneDay),
+		httpOnly: true,
+		sameSite: "none",
+		secure: true,
+	})
+	res.cookie("test3", token, {
+		expires: new Date(Date.now() + oneDay),
+		httpOnly: true,
+		sameSite: "none",
+		secure: false,
 	})
 }
 const clearCookies = async ({ res }) => {
