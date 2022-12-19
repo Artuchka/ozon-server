@@ -2,6 +2,9 @@ const express = require("express")
 require("dotenv").config()
 const morgan = require("morgan")
 const fileUpload = require("express-fileupload")
+const cors = require("cors")
+const helmet = require("helmet")
+const xss = require("xss-clean")
 
 require("express-async-errors")
 const cookieParser = require("cookie-parser")
@@ -18,6 +21,9 @@ const app = express()
 
 const port = process.env.PORT || 3000
 
+app.use(xss())
+app.use(cors())
+app.use(helmet())
 app.use(morgan("dev"))
 app.use(express.json())
 app.use(cookieParser())
