@@ -7,8 +7,13 @@ const errorHandlerMiddleware = async (err, req, res, next) => {
 	}
 	if (err?.code === 11000) {
 		error.statusCode = StatusCodes.BAD_REQUEST
-		const key = Object.keys(err?.keyValue)[0]
-		error.message = `${key} \`${err?.keyValue?.[key]}\` already registered`
+		const keys = Object.keys(err?.keyValue)
+		if (keys.length === 2) {
+			error.message = "Вы уже оставили отзыв!"
+		} else {
+			const key = [0]
+			error.message = `${key} \`${err?.keyValue?.[key]}\` already registered`
+		}
 	}
 	if (err?.name === "JsonWebTokenError") {
 		error.statusCode = StatusCodes.BAD_REQUEST

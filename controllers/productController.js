@@ -21,7 +21,7 @@ const getSingleProduct = async (req, res) => {
 	const product = await Products.findOne({ _id: id })
 		.populate({
 			path: "reviews",
-			select: "title comment rating",
+			select: "title comment rating createdAt",
 			populate: {
 				path: "author",
 				select: "email username avatar",

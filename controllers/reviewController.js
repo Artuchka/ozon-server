@@ -26,7 +26,7 @@ const createReview = async (req, res) => {
 	console.log(review)
 
 	res.status(StatusCodes.CREATED).json({
-		msg: "createReview reviews",
+		msg: "Добавили ваше мнение!",
 		review,
 	})
 }
