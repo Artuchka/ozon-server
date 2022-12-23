@@ -6,9 +6,19 @@ const {
 	ForbiddenError,
 	BadRequestError,
 } = require("../errors/customError")
+const { title } = require("process")
 
 const getAllProducts = async (req, res) => {
-	const products = await Products.find()
+	const query = req.query
+	const queryObj = {}
+	if ("title" in query) {
+		queryObj.title = { $regex: query.title, $options: "i" }
+	}
+	const products = await Products.find({ ...queryObj })
+
+	console.log("getting = ", query)
+	console.log("finding = ", queryObj)
+
 	res.status(StatusCodes.OK).json({
 		msg: "all products",
 		amount: products.length,

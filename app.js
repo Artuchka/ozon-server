@@ -34,6 +34,7 @@ app.use(
 
 // app.set("trust proxy", 1) // trust first proxy
 
+app.use(express.urlencoded({ extended: true }))
 app.use(helmet())
 app.use(helmet.crossOriginResourcePolicy({ policy: "cross-origin" }))
 app.use(morgan("dev"))
@@ -41,7 +42,6 @@ app.use(express.json())
 app.use(cookieParser())
 app.use(fileUpload())
 app.use(express.static("./public"))
-app.use(express.urlencoded({ extended: false }))
 
 app.use("/api/v1/auth", authRouter)
 app.use("/api/v1/users", authMiddleware, userRouter)
