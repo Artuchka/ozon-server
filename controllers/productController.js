@@ -41,6 +41,8 @@ const getSingleProduct = async (req, res) => {
 }
 
 const createProduct = async (req, res) => {
+	console.log(req.body)
+	req.body.specs = JSON.parse(req.body.specs)
 	const product = await Products.create({
 		...req.body,
 		vendor: req.user.userId,
@@ -97,9 +99,35 @@ const deleteProduct = async (req, res) => {
 
 const maxSize = 1024 * 1024 * 2
 const uploadImage = async (req, res) => {
-	const image = req?.files?.image
-	if (!image || !image?.mimetype?.match(/image\//)) {
-		throw new BadRequestError(`please provide image`)
+	let images = req?.files?.images
+	if (images.name && !images.length) {
+		images = [images]
+	}
+	if (!images || images.length < 1) {
+		throw new BadRequestError(`please provide image/images`)
+	}
+	const uploadPaths = images.map((img) => {
+		return upload(img)
+	})
+
+	res.status(StatusCodes.OK).json({
+		msg: `${images.length} images uploaded`,
+		paths: uploadPaths,
+	})
+}
+
+module.exports = {
+	createProduct,
+	getAllProducts,
+	getSingleProduct,
+	updateProduct,
+	uploadImage,
+	deleteProduct,
+}
+
+const upload = (image) => {
+	if (!image?.mimetype?.match(/image\//)) {
+		throw new BadRequestError(`please provide image only`)
 	}
 	if (image?.size > maxSize) {
 		throw new BadRequestError(
@@ -118,18 +146,5 @@ const uploadImage = async (req, res) => {
 			console.log("uploaded image")
 		}
 	})
-
-	res.status(StatusCodes.OK).json({
-		msg: "image product",
-		src: uploadPath,
-	})
-}
-
-module.exports = {
-	createProduct,
-	getAllProducts,
-	getSingleProduct,
-	updateProduct,
-	uploadImage,
-	deleteProduct,
+	return uploadPath
 }

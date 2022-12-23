@@ -23,6 +23,21 @@ const login = async (req, res) => {
 
 	const token = createUserToken({ user: foundUser })
 	attachCookies({ res, token })
+	res.status(StatusCodes.OK).json({
+		msg: "welcome back",
+		user: foundUser,
+	})
+}
+const loginJWT = async (req, res) => {
+	const id = req?.user?.userId
+
+	const foundUser = await Users.findOne({ _id: id })
+	if (!foundUser) {
+		throw new NotFoundError(`no user with id = ${id}`)
+	}
+
+	const token = createUserToken({ user: foundUser })
+	attachCookies({ res, token })
 
 	res.status(StatusCodes.OK).json({
 		msg: "welcome back",
@@ -50,4 +65,4 @@ const logout = async (req, res) => {
 	})
 }
 
-module.exports = { login, logout, register }
+module.exports = { login, logout, register, loginJWT }

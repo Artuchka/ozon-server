@@ -6,6 +6,8 @@ const {
 	BadRequestError,
 } = require("../errors/customError")
 const { checkPermission } = require("../utils/checkPermission")
+const { createUserToken } = require("../utils/jwt")
+const { attachCookies } = require("../utils/cookies")
 
 const getAllUsers = async (req, res) => {
 	const users = await Users.find()
@@ -56,6 +58,7 @@ const updateUser = async (req, res) => {
 		"gender",
 		"birthday",
 		"location",
+		"email",
 	]
 
 	Object.keys(req.body).forEach((key) => {

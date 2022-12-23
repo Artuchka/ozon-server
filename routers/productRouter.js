@@ -7,22 +7,25 @@ const {
 	deleteProduct,
 	uploadImage,
 } = require("../controllers/productController")
-const { roleMiddleware } = require("../middleware/authMiddleware")
+const {
+	roleMiddleware,
+	authMiddleware,
+} = require("../middleware/authMiddleware")
 const router = express.Router()
 
 router
 	.route("/")
 	.get(getAllProducts)
-	.post(roleMiddleware("admin", "vendor"), createProduct)
+	.post(authMiddleware, roleMiddleware("admin", "vendor"), createProduct)
 
 router
 	.route("/uploadImage")
-	.post(roleMiddleware("admin", "vendor"), uploadImage)
+	.post(authMiddleware, roleMiddleware("admin", "vendor"), uploadImage)
 
 router
 	.route("/:id")
 	.get(getSingleProduct)
-	.patch(roleMiddleware("admin", "vendor"), updateProduct)
-	.delete(roleMiddleware("admin", "vendor"), deleteProduct)
+	.patch(authMiddleware, roleMiddleware("admin", "vendor"), updateProduct)
+	.delete(authMiddleware, roleMiddleware("admin", "vendor"), deleteProduct)
 
 module.exports = { productRouter: router }

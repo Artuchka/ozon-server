@@ -39,15 +39,11 @@ const UserSchema = new mongoose.Schema(
 				validator: (v) => validator.isMobilePhone(v, "ru-RU"),
 			},
 		},
-		// createdAt: {
-		// 	type: Date,
-		// 	default: new Date(Date.now()),
-		// },
 		gender: {
 			type: String,
 			required: true,
 			default: "male",
-			enum: ["male", "female"],
+			enum: ["male", "female", "Attack Helicopter"],
 		},
 		role: {
 			type: String,
@@ -62,7 +58,7 @@ const UserSchema = new mongoose.Schema(
 		avatar: {
 			type: String,
 			required: true,
-			default: "/uploads/defaultAvatar.png",
+			default: "/uploads/defaultAvatar.svg",
 		},
 		location: {
 			type: String,
@@ -77,6 +73,7 @@ const UserSchema = new mongoose.Schema(
 
 UserSchema.pre("save", async function () {
 	if (this.isModified("password")) {
+		console.log("updating password")
 		const salt = await bcrypt.genSalt(10)
 		const hashedPassword = await bcrypt.hash(this.password, salt)
 		this.password = hashedPassword
