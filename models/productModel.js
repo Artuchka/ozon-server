@@ -74,6 +74,9 @@ const ProductSchema = new mongoose.Schema(
 	}
 )
 
+ProductSchema.methods.getDetails = function () {
+	return 3
+}
 ProductSchema.virtual("reviews", {
 	ref: "Review",
 	foreignField: "product",

@@ -52,7 +52,14 @@ const getAllProducts = async (req, res) => {
 	}
 	let sortParam = "createdAt"
 	if ("sort" in query) {
-		const allowedSort = ["averageRating", "price", "numOfReviews"]
+		const allowedSort = [
+			"averageRating",
+			"price",
+			"numOfReviews",
+			"-averageRating",
+			"-price",
+			"-numOfReviews",
+		]
 		sortParam = query.sort
 			.split(",")
 			.filter((param) => allowedSort.includes(param))
@@ -64,15 +71,44 @@ const getAllProducts = async (req, res) => {
 	const page = Number(query.page) || 1
 	const skip = limit * (page - 1)
 
-	const products = await Products.find(queryObj)
+	const mongoQueryAll = Products.find()
+	const mongoQueryFiltered = mongoQueryAll.clone().find(queryObj)
+	const mongoQueryPaged = mongoQueryFiltered
+		.clone()
 		.limit(limit)
 		.skip(skip)
 		.sort(sortParam)
 
+	const allProducts = await mongoQueryAll
+	const pagesProducts = await mongoQueryPaged
+	const filteredProducts = await mongoQueryFiltered
+
+	let maxPrice = 0
+	let minPrice = allProducts[0].price
+
+	const productsFound = filteredProducts.length
+	const pagesFound = Math.ceil(productsFound / limit)
+
+	allProducts.forEach((product) => {
+		const { price } = product
+		if (price > maxPrice) {
+			maxPrice = price
+		}
+		if (price < minPrice) {
+			minPrice = price
+		}
+	})
+	const details = {
+		productsFound,
+		pagesFound,
+		maxPrice,
+		minPrice,
+	}
+
 	res.status(StatusCodes.OK).json({
 		msg: "all products",
-		amount: products.length,
-		products,
+		products: pagesProducts,
+		details,
 	})
 }
 
