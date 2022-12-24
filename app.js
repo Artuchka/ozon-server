@@ -21,7 +21,7 @@ const app = express()
 
 const port = process.env.PORT || 3000
 
-app.use(xss())
+// app.use(xss())
 app.use(
 	cors({
 		credentials: true,

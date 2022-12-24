@@ -10,14 +10,64 @@ const { title } = require("process")
 
 const getAllProducts = async (req, res) => {
 	const query = req.query
-	const queryObj = {}
+
+	let queryObj = {}
 	if ("title" in query) {
 		queryObj.title = { $regex: query.title, $options: "i" }
 	}
-	const products = await Products.find({ ...queryObj })
+	if ("imagesAmount" in query) {
+		queryObj["$expr"] = {
+			$gte: [{ $size: "$images" }, Number(query.imagesAmount)],
+		}
+	}
+	if ("numericFilters" in query) {
+		const operatorsMap = {
+			"<": "$lt",
+			"<=": "$lte",
+			">": "$gt",
+			">=": "$gte",
+			"=": "$eq",
+		}
 
-	console.log("getting = ", query)
-	console.log("finding = ", queryObj)
+		const allowedNames = ["averageRating", "price", "numOfReviews"]
+
+		const filters = query.numericFilters.split(",")
+		const replaced = filters.map((expr) =>
+			expr.replace(/(<=|>=|=|>|<)/, (substr) => {
+				if (substr in operatorsMap) {
+					return `-${operatorsMap[substr]}-`
+				}
+				return ""
+			})
+		)
+		replaced.forEach((item) => {
+			const [name, sign, value] = item.split("-")
+			if (allowedNames.includes(name)) {
+				queryObj = {
+					...queryObj,
+					[name]: { ...queryObj[name], [sign]: value },
+				}
+			}
+		})
+	}
+	let sortParam = "createdAt"
+	if ("sort" in query) {
+		const allowedSort = ["averageRating", "price", "numOfReviews"]
+		sortParam = query.sort
+			.split(",")
+			.filter((param) => allowedSort.includes(param))
+			.join(" ")
+	}
+	sortParam = sortParam || "createdAt"
+
+	const limit = Number(query.limit) || 2
+	const page = Number(query.page) || 1
+	const skip = limit * (page - 1)
+
+	const products = await Products.find(queryObj)
+		.limit(limit)
+		.skip(skip)
+		.sort(sortParam)
 
 	res.status(StatusCodes.OK).json({
 		msg: "all products",

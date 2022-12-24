@@ -80,6 +80,10 @@ ProductSchema.virtual("reviews", {
 	localField: "_id",
 	justOne: false,
 })
+
+ProductSchema.virtual("imagesCount").get(function () {
+	return this.images.length
+})
 // ProductSchema.virtual("reviews").get(async function () {
 // 	return await this.model("Review").find({ product: this._id })
 // })
