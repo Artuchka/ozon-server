@@ -9,7 +9,11 @@ const errorHandlerMiddleware = async (err, req, res, next) => {
 		error.statusCode = StatusCodes.BAD_REQUEST
 		const keys = Object.keys(err?.keyValue)
 		if (keys.length === 2) {
-			error.message = "Вы уже оставили отзыв!"
+			if (keys.includes("user") && keys.includes("product")) {
+				error.message = "Я уже в закладках!"
+			} else {
+				error.message = "Вы уже оставили отзыв!"
+			}
 		} else {
 			const key = [0]
 			error.message = `${key} \`${err?.keyValue?.[key]}\` already registered`
