@@ -3,8 +3,8 @@ require("dotenv").config()
 const morgan = require("morgan")
 const fileUpload = require("express-fileupload")
 const cors = require("cors")
-const helmet = require("helmet")
-const xss = require("xss-clean")
+// const helmet = require("helmet")
+// const xss = require("xss-clean")
 
 require("express-async-errors")
 const cookieParser = require("cookie-parser")
@@ -36,8 +36,8 @@ app.use(
 // app.set("trust proxy", 1) // trust first proxy
 
 app.use(express.urlencoded({ extended: true }))
-app.use(helmet())
-app.use(helmet.crossOriginResourcePolicy({ policy: "cross-origin" }))
+// app.use(helmet())
+// app.use(helmet.crossOriginResourcePolicy({ policy: "cross-origin" }))
 app.use(morgan("dev"))
 app.use(express.json())
 app.use(cookieParser())
