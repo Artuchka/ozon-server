@@ -67,17 +67,17 @@ const getAllProducts = async (req, res) => {
 	}
 	sortParam = sortParam || "createdAt"
 
-	const limit = Number(query.limit) || 2
 	const page = Number(query.page) || 1
+	const limit = Number(query.limit) || 3
 	const skip = limit * (page - 1)
 
 	const mongoQueryAll = Products.find()
 	const mongoQueryFiltered = mongoQueryAll.clone().find(queryObj)
 	const mongoQueryPaged = mongoQueryFiltered
 		.clone()
-		.limit(limit)
+		.sort(`${sortParam} _id`)
 		.skip(skip)
-		.sort(sortParam)
+		.limit(limit)
 
 	const allProducts = await mongoQueryAll
 	const pagesProducts = await mongoQueryPaged
