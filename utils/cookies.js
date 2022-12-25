@@ -9,9 +9,10 @@ const attachCookies = async ({ res, token }) => {
 }
 
 const clearCookies = async ({ res }) => {
-	res.cookie("token", "empty", {
-		expires: new Date(Date.now()),
-	})
+	res.clearCookies("token")
+	// res.cookie("token", "empty", {
+	// 	expires: new Date(Date.now()),
+	// })
 }
 
 module.exports = { clearCookies, attachCookies }
