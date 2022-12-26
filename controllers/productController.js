@@ -139,6 +139,9 @@ const getSingleProduct = async (req, res) => {
 const createProduct = async (req, res) => {
 	console.log(req.body)
 	req.body.specs = JSON.parse(req.body.specs)
+	req.body.companies = JSON.parse(req.body.companies)
+	req.body.categories = JSON.parse(req.body.categories)
+	req.body.tags = JSON.parse(req.body.tags)
 	const product = await Products.create({
 		...req.body,
 		vendor: req.user.userId,

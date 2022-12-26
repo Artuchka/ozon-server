@@ -40,6 +40,16 @@ const ProductSchema = new mongoose.Schema(
 			required: true,
 			default: ["product tag"],
 		},
+		companies: {
+			type: [String],
+			required: true,
+			default: ["samsung"],
+		},
+		categories: {
+			type: [String],
+			required: true,
+			default: ["техника"],
+		},
 		images: {
 			type: [String],
 			required: true,
