@@ -140,6 +140,19 @@ const getAllProducts = async (req, res) => {
 		details,
 	})
 }
+const getMyProducts = async (req, res) => {
+	let sortParam = "createdAt"
+	const { userId } = req.user
+
+	const products = await Products.find({
+		vendor: userId,
+	}).sort(sortParam)
+
+	res.status(StatusCodes.OK).json({
+		msg: "all products",
+		products,
+	})
+}
 
 const getSingleProduct = async (req, res) => {
 	const { id } = req.params
@@ -251,6 +264,7 @@ module.exports = {
 	updateProduct,
 	uploadImage,
 	deleteProduct,
+	getMyProducts,
 }
 
 const upload = (image) => {

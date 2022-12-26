@@ -13,6 +13,25 @@ const getAllReviews = async (req, res) => {
 		reviews,
 	})
 }
+const getMyReviews = async (req, res) => {
+	const { userId } = req.user
+
+	const reviews = await Reviews.find({
+		author: userId,
+	}).populate({
+		path: "product",
+		select: "title price numOfReviews images tags",
+		populate: {
+			path: "vendor",
+			select: "username email firstName lastName",
+		},
+	})
+	res.status(StatusCodes.OK).json({
+		msg: "all reviews",
+		amount: reviews.length,
+		reviews,
+	})
+}
 const createReview = async (req, res) => {
 	const { title, comment, rating, productId } = req.body
 
@@ -86,4 +105,5 @@ module.exports = {
 	updateSingleReview,
 	deleteSingleReview,
 	createReview,
+	getMyReviews,
 }

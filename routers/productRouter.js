@@ -6,6 +6,7 @@ const {
 	updateProduct,
 	deleteProduct,
 	uploadImage,
+	getMyProducts,
 } = require("../controllers/productController")
 const {
 	roleMiddleware,
@@ -21,6 +22,10 @@ router
 router
 	.route("/uploadImage")
 	.post(authMiddleware, roleMiddleware("admin", "vendor"), uploadImage)
+
+router
+	.route("/my")
+	.get(authMiddleware, roleMiddleware("admin", "vendor"), getMyProducts)
 
 router
 	.route("/:id")

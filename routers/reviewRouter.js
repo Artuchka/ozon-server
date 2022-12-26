@@ -5,10 +5,13 @@ const {
 	getSingleReview,
 	updateSingleReview,
 	deleteSingleReview,
+	getMyReviews,
 } = require("../controllers/reviewController")
 const router = express.Router()
 
 router.route("/").get(getAllReviews).post(createReview)
+
+router.route("/my").get(getMyReviews)
 
 router
 	.route("/:id")
