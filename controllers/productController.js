@@ -7,6 +7,7 @@ const {
 	BadRequestError,
 } = require("../errors/customError")
 const { title } = require("process")
+const { log } = require("console")
 
 const getAllProducts = async (req, res) => {
 	const query = req.query
@@ -19,6 +20,15 @@ const getAllProducts = async (req, res) => {
 		queryObj["$expr"] = {
 			$gte: [{ $size: "$images" }, Number(query.imagesAmount)],
 		}
+	}
+	if ("companies" in query) {
+		queryObj["companies"] = { $in: query.companies.split(",") }
+	}
+	if ("tags" in query) {
+		queryObj["tags"] = { $in: query.tags.split(",") }
+	}
+	if ("categories" in query) {
+		queryObj["categories"] = { $in: query.categories.split(",") }
 	}
 	if ("numericFilters" in query) {
 		const operatorsMap = {
@@ -98,11 +108,30 @@ const getAllProducts = async (req, res) => {
 			minPrice = price
 		}
 	})
+
+	const companies = new Set()
+	const categories = new Set()
+	const tags = new Set()
+	allProducts.forEach((product) => {
+		product.companies.forEach((company) => {
+			companies.add(company)
+		})
+		product.categories.forEach((category) => {
+			categories.add(category)
+		})
+		product.tags.forEach((tag) => {
+			tags.add(tag)
+		})
+	})
+
 	const details = {
 		productsFound,
 		pagesFound,
 		maxPrice,
 		minPrice,
+		companies: Array.from(companies),
+		tags: Array.from(tags),
+		categories: Array.from(categories),
 	}
 
 	res.status(StatusCodes.OK).json({
