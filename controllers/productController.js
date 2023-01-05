@@ -203,7 +203,16 @@ const updateProduct = async (req, res) => {
 		throw new NotFoundError(`no product with id = ${id}`)
 	}
 
-	const allowed = ["description", "title", "price"]
+	const allowed = [
+		"description",
+		"title",
+		"price",
+		"specs",
+		"companies",
+		"categories",
+		"tags",
+		"images",
+	]
 
 	Object.keys(req.body).forEach((key) => {
 		if (!allowed.includes(key)) {
