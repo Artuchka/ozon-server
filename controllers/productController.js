@@ -214,6 +214,11 @@ const updateProduct = async (req, res) => {
 		"images",
 	]
 
+	req.body.specs = JSON.parse(req.body.specs)
+	req.body.companies = JSON.parse(req.body.companies)
+	req.body.categories = JSON.parse(req.body.categories)
+	req.body.tags = JSON.parse(req.body.tags)
+
 	Object.keys(req.body).forEach((key) => {
 		if (!allowed.includes(key)) {
 			throw new ForbiddenError(
@@ -223,7 +228,7 @@ const updateProduct = async (req, res) => {
 		product[key] = req.body[key]
 	})
 	await product.save()
-
+	console.log("saved")
 	res.status(StatusCodes.OK).json({
 		msg: "updateProduct product",
 		product,
