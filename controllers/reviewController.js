@@ -33,12 +33,13 @@ const getMyReviews = async (req, res) => {
 	})
 }
 const createReview = async (req, res) => {
-	const { title, comment, rating, productId, images } = req.body
+	const { title, comment, rating, productId, images, videos } = req.body
 
 	const review = await Reviews.create({
 		title,
 		comment,
 		rating,
+		videos,
 		images,
 		product: productId,
 		author: req.user.userId,
