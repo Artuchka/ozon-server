@@ -7,6 +7,7 @@ const {
 	deleteProduct,
 	uploadImage,
 	getMyProducts,
+	uploadVideo,
 } = require("../controllers/productController")
 const {
 	roleMiddleware,
@@ -22,6 +23,10 @@ router
 router
 	.route("/uploadImage")
 	.post(authMiddleware, roleMiddleware("admin", "vendor"), uploadImage)
+
+router
+	.route("/uploadVideo")
+	.post(authMiddleware, roleMiddleware("admin", "vendor"), uploadVideo)
 
 router
 	.route("/my")

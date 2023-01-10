@@ -8,6 +8,10 @@ const {
 } = require("../errors/customError")
 const { title } = require("process")
 const { log } = require("console")
+const { rusToLatin } = require("../utils/langTranslit")
+const CyrillicToTranslit = require("cyrillic-to-translit-js")
+
+const { createHash } = require("node:crypto")
 
 const getAllProducts = async (req, res) => {
 	const query = req.query
@@ -252,8 +256,8 @@ const deleteProduct = async (req, res) => {
 	})
 }
 
-const maxSize = 1024 * 1024 * 2
 const uploadImage = async (req, res) => {
+	const maxSizeImage = 1024 * 1024 * 2
 	let images = req?.files?.images
 	if (images.name && !images.length) {
 		images = [images]
@@ -262,11 +266,32 @@ const uploadImage = async (req, res) => {
 		throw new BadRequestError(`please provide image/images`)
 	}
 	const uploadPaths = images.map((img) => {
-		return upload(img)
+		return upload(img, "image", maxSizeImage)
 	})
 
 	res.status(StatusCodes.OK).json({
 		msg: `${images.length} images uploaded`,
+		paths: uploadPaths,
+	})
+}
+
+const uploadVideo = async (req, res) => {
+	const maxSizeVideo = 1024 * 1024 * 10
+	let videos = req?.files?.videos
+	console.log({ videos })
+	// todo: use isArray() instead
+	if (videos.name && !videos.length) {
+		videos = [videos]
+	}
+	if (!videos || videos.length < 1) {
+		throw new BadRequestError(`please provide video`)
+	}
+	const uploadPaths = videos.map((img) => {
+		return upload(img, "video", maxSizeVideo)
+	})
+
+	res.status(StatusCodes.OK).json({
+		msg: `${videos.length} videos uploaded`,
 		paths: uploadPaths,
 	})
 }
@@ -278,14 +303,21 @@ module.exports = {
 	updateProduct,
 	uploadImage,
 	deleteProduct,
+	uploadVideo,
 	getMyProducts,
 }
 
-const upload = (image) => {
-	if (!image?.mimetype?.match(/image\//)) {
-		throw new BadRequestError(`please provide image only`)
+const cyrillicToTranslit = new CyrillicToTranslit()
+
+const upload = (file, type, maxSize) => {
+	let regex = /image\//
+	if (type === "video") {
+		regex = /video\//
 	}
-	if (image?.size > maxSize) {
+	if (!file?.mimetype?.match(regex)) {
+		throw new BadRequestError(`please provide ${type} only`)
+	}
+	if (file?.size > maxSize) {
 		throw new BadRequestError(
 			`the image is too big, send only up to ${
 				maxSize / 1024 / 1024
@@ -293,14 +325,31 @@ const upload = (image) => {
 		)
 	}
 
-	const uploadPath = `/uploads/products/${image.name}`
+	const translatedName = cyrillicToTranslit
+		.transform(file.name, "_")
+		.toLowerCase()
 
-	image.mv(path.join(__dirname, "../public", uploadPath), (err) => {
+	const nameHashed = file.md5
+	const dotIndex = translatedName.lastIndexOf(".")
+
+	const nameWithHash =
+		translatedName.substring(0, dotIndex) +
+		"=" +
+		nameHashed +
+		translatedName.substring(dotIndex)
+
+	const uploadPath = `/uploads/${type}/${nameWithHash}`
+
+	file.mv(path.join(__dirname, "../public", uploadPath), (err) => {
 		if (err) {
 			console.log(err)
 		} else {
-			console.log("uploaded image")
+			console.log(`uploaded ${type}`)
 		}
 	})
 	return uploadPath
 }
+
+const name = "name.mp4"
+const dotIndex = name.lastIndexOf(".")
+console.log({ dotIndex })
