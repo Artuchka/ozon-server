@@ -83,7 +83,7 @@ const updateSingleReview = async (req, res) => {
 		throw new NotFoundError(`no review with id=${id}`)
 	}
 
-	const allowed = ["comment", "title", "rating"]
+	const allowed = ["comment", "title", "rating", "images", "videos"]
 
 	Object.keys(req.body).forEach((key) => {
 		if (!allowed.includes(key)) {
