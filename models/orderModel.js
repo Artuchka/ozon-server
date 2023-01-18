@@ -1,7 +1,7 @@
 const mongoose = require("mongoose")
 
 const SingleProductOrderSchema = new mongoose.Schema({
-	name: {
+	title: {
 		type: String,
 		required: true,
 	},
@@ -23,45 +23,70 @@ const SingleProductOrderSchema = new mongoose.Schema({
 	},
 })
 
+const DiscountSchema = new mongoose.Schema({
+	type: {
+		type: String,
+		enum: {
+			values: ["percentage", "minus"],
+			message: "{VALUE} is not supported for discount type",
+		},
+		required: true,
+	},
+	value: {
+		type: Number,
+		required: true,
+	},
+	name: {
+		type: String,
+		required: true,
+		default: "Название скидки",
+	},
+})
+
 const OrderSchema = new mongoose.Schema({
-	tax: {
+	items: {
+		type: [SingleProductOrderSchema],
+		default: [],
+		required: true,
+	},
+	subtotal: {
+		// sum of item prices
 		type: Number,
 		default: 0,
 		required: true,
 	},
+
 	shippingFee: {
 		type: Number,
 		default: 0,
 		required: true,
 	},
-	subtotal: {
-		type: Number,
-		default: 0,
-		required: true,
+	discounts: {
+		// ex: [{type: 'percentage',name: 'Just for charity', value: 0.9}
+		// 		,{type: 'percentage',name: 'Just for charity', value: 0.9},
+		// 		,{type: 'minus',name: 'Just for charity', value: 300}]
+		type: [DiscountSchema],
+		default: [],
+		required: false,
 	},
 	total: {
 		type: Number,
 		default: 0,
 		required: true,
 	},
-	items: {
-		type: [SingleProductOrderSchema],
-		default: [],
-		required: true,
-	},
 	user: {
 		type: mongoose.Schema.Types.ObjectId,
 		ref: "User",
 		required: true,
-		unique: true,
 	},
 	status: {
 		type: String,
 		enum: {
-			values: ["checkout", "pending", "paid"],
+			values: ["cart", "checkout", "pending", "paid", "delievered"],
 			message: "{VALUE} is not supported for order status",
 		},
-		default: "checkout",
+		// default: "cart",
+		required: true,
 	},
 })
 

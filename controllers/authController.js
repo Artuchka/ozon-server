@@ -3,6 +3,7 @@ const { Users } = require("../models/userModel")
 const { BadRequestError, NotFoundError } = require("../errors/customError")
 const { attachCookies, clearCookies } = require("../utils/cookies")
 const { createUserToken } = require("../utils/jwt")
+const { Orders } = require("../models/orderModel")
 
 const login = async (req, res) => {
 	const { email, password } = req.body
@@ -49,12 +50,17 @@ const register = async (req, res) => {
 	const { email, password } = req.body
 
 	const createdUser = await Users.create({ email, password })
+	const cartForUser = await Orders.create({
+		user: createdUser._id,
+		status: "cart",
+	})
 
 	// email verification
 
 	res.status(StatusCodes.OK).json({
 		msg: "registered!",
 		createdUser,
+		cartForUser,
 	})
 }
 
