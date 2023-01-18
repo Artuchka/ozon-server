@@ -15,7 +15,7 @@ const errorHandlerMiddleware = async (err, req, res, next) => {
 				error.message = "Вы уже оставили отзыв!"
 			}
 		} else {
-			const key = [0]
+			const key = keys[0]
 			error.message = `${key} \`${err?.keyValue?.[key]}\` already registered`
 		}
 	}
