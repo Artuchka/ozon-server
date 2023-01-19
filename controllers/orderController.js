@@ -54,9 +54,17 @@ const createOrder = async (req, res) => {
 	})
 }
 
+// This is your test secret API key.
+const stripe = require("stripe")(
+	"sk_test_51MAxWLBjYPBxkDu0F5giJjXsQorKYBLkDrhVFdgCrdb7W140cucAxZlMNHCICf4pMik8Hq6wNoeQYphpBQreY1Rj00jCSyIBC4"
+)
+
 const updateOrder = async (req, res, next) => {
 	const { userId } = req.user
 	const { orderId } = req.params
+
+	console.log({ orderId })
+	console.log(req.body)
 
 	const order = await Orders.findOne({ _id: orderId })
 	if (!order) {
@@ -72,15 +80,28 @@ const updateOrder = async (req, res, next) => {
 		"discounts",
 	]
 
-	if (order.status === "pending") {
-		// const
+	if (req.body.status === "pending") {
+		const paymentIntent = await stripe.paymentIntents.create({
+			amount: order.total * 100,
+			currency: "usd",
+			automatic_payment_methods: {
+				enabled: true,
+			},
+		})
+
+		order.status = "pending"
+		await order.save()
+
+		return res.status(StatusCodes.CREATED).json({
+			clientSecret: paymentIntent.client_secret,
+		})
 	}
 
-	if (order.status === "checkout" || req.body.status === "checkout") {
-		const obj = { ...order._doc, ...req.body }
-		const retObj = await checkCartItems(obj, next)
-		if (retObj !== true) return retObj
-	}
+	// if (order.status === "checkout" || req.body.status === "checkout") {
+	// 	const obj = { ...order._doc, ...req.body }
+	// 	const retObj = await checkCartItems(obj, next)
+	// 	if (retObj !== true) return retObj
+	// }
 
 	for (const key in req.body) {
 		if (!allowed.includes(key)) {
@@ -94,6 +115,45 @@ const updateOrder = async (req, res, next) => {
 		msg: "update",
 		order,
 	})
+}
+
+const addToCart = async (req, res) => {
+	const { orderId } = req.params
+	const { productId, amount } = req.body
+
+	const order = await Orders.findOne({
+		_id: orderId,
+	})
+
+	let copyItems = [...order.items]
+	let isFound = false
+	if (amount === 0) {
+		copyItems = copyItems.filter(
+			(item) => item.product.toString() !== productId
+		)
+	} else {
+		for (let index = 0; index < copyItems.length; index++) {
+			if (copyItems[index].product.toString() === productId) {
+				copyItems[index].amount = amount
+				isFound = true
+				break
+			}
+		}
+
+		if (!isFound) {
+			copyItems.push({ product: productId, amount })
+		}
+	}
+
+	order.items = copyItems
+	await order.save()
+
+	await order.populate({
+		path: "items.product",
+		select: "title price description images",
+	})
+
+	res.status(StatusCodes.OK).json({ msg: "added to cart", order })
 }
 
 const checkCartItems = async (
@@ -181,11 +241,22 @@ const deleteOrder = async (req, res) => {
 	})
 }
 
-const getCurrentUserOrder = async (req, res) => {
+const getCurrentUserCart = async (req, res) => {
 	const { userId } = req.user
-	const order = await Orders.findOne({ user: userId })
+
+	const order = await Orders.findOne({
+		user: userId,
+		status: "cart",
+	}).populate({
+		path: "items.product",
+		select: "title price description images",
+	})
+
+	console.log({ order })
 	if (!order) {
-		throw new NotFoundError(`there is no order for user with id=${userId}`)
+		throw new NotFoundError(
+			`there is no \`cart\` order for user with id=${userId}`
+		)
 	}
 	res.status(StatusCodes.OK).json({
 		msg: "current",
@@ -198,5 +269,6 @@ module.exports = {
 	createOrder,
 	deleteOrder,
 	updateOrder,
-	getCurrentUserOrder,
+	getCurrentUserCart,
+	addToCart,
 }
