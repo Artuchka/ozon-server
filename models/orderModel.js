@@ -1,24 +1,13 @@
 const mongoose = require("mongoose")
 
 const SingleProductOrderSchema = new mongoose.Schema({
-	title: {
-		type: String,
-		required: true,
-	},
-	price: {
-		type: Number,
-		required: true,
-	},
 	amount: {
 		type: Number,
 		required: true,
 	},
-	image: {
-		type: String,
-		required: true,
-	},
 	product: {
 		type: mongoose.Schema.Types.ObjectId,
+		ref: "Product",
 		required: true,
 	},
 })
@@ -50,7 +39,6 @@ const OrderSchema = new mongoose.Schema({
 		required: true,
 	},
 	subtotal: {
-		// sum of item prices
 		type: Number,
 		default: 0,
 		required: true,
@@ -62,9 +50,6 @@ const OrderSchema = new mongoose.Schema({
 		required: true,
 	},
 	discounts: {
-		// ex: [{type: 'percentage',name: 'Just for charity', value: 0.9}
-		// 		,{type: 'percentage',name: 'Just for charity', value: 0.9},
-		// 		,{type: 'minus',name: 'Just for charity', value: 300}]
 		type: [DiscountSchema],
 		default: [],
 		required: false,
@@ -85,7 +70,6 @@ const OrderSchema = new mongoose.Schema({
 			values: ["cart", "checkout", "pending", "paid", "delievered"],
 			message: "{VALUE} is not supported for order status",
 		},
-		// default: "cart",
 		required: true,
 	},
 })
@@ -93,3 +77,19 @@ const OrderSchema = new mongoose.Schema({
 const Orders = new mongoose.model("Order", OrderSchema)
 
 module.exports = { Orders }
+
+// ex: [{type: 'percentage',name: 'Just for charity', value: 0.9}
+// 		,{type: 'percentage',name: 'Just for charity', value: 0.9},
+// 		,{type: 'minus',name: 'Just for charity', value: 300}]
+// title: {
+// 	type: String,
+// 	required: true,
+// },
+// price: {
+// 	type: Number,
+// 	required: true,
+// },
+// image: {
+// 	type: String,
+// 	required: true,
+// },

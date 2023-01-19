@@ -3,8 +3,8 @@ const attachCookies = async ({ res, token }) => {
 	res.cookie("token", token, {
 		expires: new Date(Date.now() + oneDay),
 		httpOnly: false,
-		sameSite: "none",
-		secure: true,
+		// sameSite: "none",
+		// secure: true,
 	})
 }
 
