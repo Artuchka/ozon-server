@@ -69,6 +69,11 @@ const OrderSchema = new mongoose.Schema({
 		default: 0,
 		required: true,
 	},
+	clientSecret: {
+		type: String,
+		default: "placeholder",
+		required: true,
+	},
 	user: {
 		type: mongoose.Schema.Types.ObjectId,
 		ref: "User",

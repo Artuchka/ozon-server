@@ -81,19 +81,11 @@ const updateOrder = async (req, res, next) => {
 	]
 
 	if (req.body.status === "pending") {
-		const paymentIntent = await stripe.paymentIntents.create({
-			amount: order.total * 100,
-			currency: "usd",
-			automatic_payment_methods: {
-				enabled: true,
-			},
-		})
-
 		order.status = "pending"
 		await order.save()
-
-		return res.status(StatusCodes.CREATED).json({
-			clientSecret: paymentIntent.client_secret,
+		res.status(StatusCodes.OK).json({
+			msg: "pendign now",
+			order,
 		})
 	}
 
@@ -122,6 +114,9 @@ const addToCart = async (req, res, next) => {
 	const order = await Orders.findOne({
 		_id: orderId,
 	})
+	if (!order) {
+		throw new NotFoundError(`there is no order with id=${orderId}`)
+	}
 
 	let copyItems = [...order.items]
 	let isFound = false
@@ -255,6 +250,39 @@ const getCurrentUserCart = async (req, res) => {
 	})
 }
 
+const createPaymentIntent = async (req, res, next) => {
+	try {
+		const { orderId } = req.body
+
+		console.log("starting payment intent")
+
+		const order = await Orders.findOne({
+			_id: orderId,
+		})
+		console.log({ founddd: order })
+		if (!order) {
+			return new NotFoundError(`there is no order with id=${orderId}`)
+		}
+		const paymentIntent = await stripe.paymentIntents.create({
+			amount: order.total * 100,
+			currency: "usd",
+			automatic_payment_methods: {
+				enabled: true,
+			},
+		})
+
+		order.clientSecret = paymentIntent.client_secret
+		await order.save()
+
+		res.status(StatusCodes.CREATED).json({
+			order,
+			msg: "client secret updated",
+		})
+	} catch (error) {
+		console.log(error)
+	}
+}
+
 module.exports = {
 	getAllOrders,
 	createOrder,
@@ -262,4 +290,5 @@ module.exports = {
 	updateOrder,
 	getCurrentUserCart,
 	addToCart,
+	createPaymentIntent,
 }
