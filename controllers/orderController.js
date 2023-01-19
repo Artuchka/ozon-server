@@ -74,8 +74,8 @@ const updateOrder = async (req, res, next) => {
 	const allowed = [
 		"status",
 		"items",
-		"total",
-		"subtotal",
+		// "total",
+		// "subtotal",
 		"shippingFee",
 		"discounts",
 	]
@@ -97,18 +97,16 @@ const updateOrder = async (req, res, next) => {
 		})
 	}
 
-	// if (order.status === "checkout" || req.body.status === "checkout") {
-	// 	const obj = { ...order._doc, ...req.body }
-	// 	const retObj = await checkCartItems(obj, next)
-	// 	if (retObj !== true) return retObj
-	// }
-
 	for (const key in req.body) {
 		if (!allowed.includes(key)) {
 			throw new ForbiddenError(`not allowed to update ${key} field`)
 		}
 		order[key] = req.body[key]
 	}
+
+	const { countedSubtotal, countedTotal } = await getCartTotals(order, next)
+	order.total = countedTotal
+	order.subtotal = countedSubtotal
 	await order.save()
 
 	res.status(StatusCodes.OK).json({
@@ -117,7 +115,7 @@ const updateOrder = async (req, res, next) => {
 	})
 }
 
-const addToCart = async (req, res) => {
+const addToCart = async (req, res, next) => {
 	const { orderId } = req.params
 	const { productId, amount } = req.body
 
@@ -146,6 +144,14 @@ const addToCart = async (req, res) => {
 	}
 
 	order.items = copyItems
+
+	const { countedSubtotal, countedTotal, amountTotal, itemsLength } =
+		await getCartDetails(order, next)
+	order.total = countedTotal
+	order.subtotal = countedSubtotal
+	order.amountTotal = amountTotal
+	order.itemsLength = itemsLength
+
 	await order.save()
 
 	await order.populate({
@@ -156,62 +162,47 @@ const addToCart = async (req, res) => {
 	res.status(StatusCodes.OK).json({ msg: "added to cart", order })
 }
 
-const checkCartItems = async (
-	{ items, total, subtotal, shippingFee, discounts },
-	next
-) => {
-	console.log({ items })
-	const countedSubtotal = await items.reduce(async (agg, item) => {
-		const foundItem = await Products.findOne({ _id: item.product })
-		if (!foundItem) {
-			return next(
-				new NotFoundError(`no such item with id ${item.product}`)
-			)
-		}
-		return agg + foundItem.price * item.amount
-	}, 0)
-
-	const countedSubtotalFixed = countedSubtotal.toFixed(2)
-	const subtotalFixed = subtotal.toFixed(2)
-
-	console.log({ countedSubtotalFixed, subtotalFixed })
-	if (subtotalFixed !== countedSubtotalFixed) {
-		return next(
-			new BadRequestError(
-				`subtotals are bad: ${subtotalFixed} !== ${countedSubtotalFixed}(real)`
-			)
-		)
-	}
-
+const getCartDetails = async ({ items, shippingFee, discounts }, next) => {
+	let { countedSubtotal, amountTotal } = await items.reduce(
+		async (agg, item) => {
+			const foundItem = await Products.findOne({ _id: item.product })
+			if (!foundItem) {
+				return next(
+					new NotFoundError(`no such item with id ${item.product}`)
+				)
+			}
+			const prev = await agg
+			return {
+				countedSubtotal:
+					prev.countedSubtotal + foundItem.price * item.amount,
+				amountTotal: prev.amountTotal + item.amount,
+			}
+		},
+		{ amountTotal: 0, countedSubtotal: 0 }
+	)
 	let countedTotal = countedSubtotal + shippingFee
 
 	discounts.forEach((discount) => {
 		if (discount.type === "minus") {
 			countedTotal -= discount.value
 		}
-		console.log({ countedTotal, discount })
 	})
 
 	discounts.forEach((discount) => {
 		if (discount.type === "percentage") {
 			countedTotal *= discount.value
 		}
-		console.log({ countedTotal, discount })
 	})
+	countedTotal = parseFloat(countedTotal.toFixed(2))
+	countedSubtotal = parseFloat(countedSubtotal.toFixed(2))
+	const itemsLength = items.length
 
-	const countedTotalFixed = countedTotal.toFixed(2)
-	const totalFixed = total.toFixed(2)
-
-	console.log({ countedTotalFixed, totalFixed })
-	if (countedTotalFixed !== totalFixed) {
-		return next(
-			new BadRequestError(
-				`totals are bad: ${totalFixed} !== ${countedTotalFixed}(real)`
-			)
-		)
+	return {
+		countedSubtotal,
+		countedTotal,
+		amountTotal,
+		itemsLength,
 	}
-
-	return true
 }
 
 const deleteOrder = async (req, res) => {
