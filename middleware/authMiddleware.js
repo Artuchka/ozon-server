@@ -6,7 +6,7 @@ const authMiddleware = async (req, res, next) => {
 	const { token } = req.cookies
 
 	const decoded = verifyToken(token)
-	console.log(decoded)
+	// console.log(decoded)
 	req.user = decoded
 	next()
 }

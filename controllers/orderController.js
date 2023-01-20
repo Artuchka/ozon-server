@@ -17,20 +17,54 @@ const getAllOrders = async (req, res) => {
 	})
 }
 const getSingleByPaymentSecret = async (req, res) => {
-	const { paymentSecret } = req.params
-	const order = await Orders.findOne({
-		clientSecret: paymentSecret,
-	}).populate({
-		path: "items.product",
-		select: "title price description images",
-	})
+	try {
+		const { paymentSecret } = req.params
+		const order = await Orders.findOne({
+			clientSecret: paymentSecret,
+		}).populate({
+			path: "items.product",
+			select: "title price description images",
+		})
 
-	checkPermission(req.user, order.user)
+		if (!order) {
+			throw new NotFoundError(
+				`there is no order with clientSecret=${paymentSecret}`
+			)
+		}
+		checkPermission(req.user, order.user)
 
-	res.status(StatusCodes.OK).json({
-		msg: "by payment secret",
-		order,
-	})
+		res.status(StatusCodes.OK).json({
+			msg: "by payment secret",
+			order,
+		})
+	} catch (error) {
+		console.log(error)
+	}
+}
+const getSingleByOrderId = async (req, res) => {
+	try {
+		const { orderId } = req.params
+		const order = await Orders.findOne({
+			_id: orderId,
+		}).populate({
+			path: "items.product",
+			select: "title price description images",
+		})
+
+		if (!order) {
+			throw new NotFoundError(
+				`there is no order with clientSecret=${paymentSecret}`
+			)
+		}
+		checkPermission(req.user, order.user)
+
+		res.status(StatusCodes.OK).json({
+			msg: "get single by orderId",
+			order,
+		})
+	} catch (error) {
+		console.log(error)
+	}
 }
 
 const createOrder = async (req, res) => {
@@ -305,4 +339,5 @@ module.exports = {
 	addToCart,
 	createPaymentIntent,
 	getSingleByPaymentSecret,
+	getSingleByOrderId,
 }

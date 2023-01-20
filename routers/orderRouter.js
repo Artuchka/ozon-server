@@ -8,6 +8,7 @@ const {
 	addToCart,
 	createPaymentIntent,
 	getSingleByPaymentSecret,
+	getSingleByOrderId,
 } = require("../controllers/orderController")
 const { roleMiddleware } = require("../middleware/authMiddleware")
 const router = express.Router()
@@ -21,6 +22,11 @@ router
 	.route("/create-payment-intent")
 	.post(roleMiddleware("user", "vendor", "admin"), createPaymentIntent)
 
-router.route("/:orderId").delete(deleteOrder).patch(updateOrder).post(addToCart)
+router
+	.route("/:orderId")
+	.delete(deleteOrder)
+	.patch(updateOrder)
+	.post(addToCart)
+	.get(getSingleByOrderId)
 
 module.exports = { orderRouter: router }
