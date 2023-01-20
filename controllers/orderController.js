@@ -71,23 +71,7 @@ const updateOrder = async (req, res, next) => {
 		throw new NotFoundError(`there is no order with id=${orderId}`)
 	}
 
-	const allowed = [
-		"status",
-		"items",
-		// "total",
-		// "subtotal",
-		"shippingFee",
-		"discounts",
-	]
-
-	if (req.body.status === "pending") {
-		order.status = "pending"
-		await order.save()
-		res.status(StatusCodes.OK).json({
-			msg: "pendign now",
-			order,
-		})
-	}
+	const allowed = ["status", "items", "shippingFee", "discounts"]
 
 	for (const key in req.body) {
 		if (!allowed.includes(key)) {
@@ -96,7 +80,7 @@ const updateOrder = async (req, res, next) => {
 		order[key] = req.body[key]
 	}
 
-	const { countedSubtotal, countedTotal } = await getCartTotals(order, next)
+	const { countedSubtotal, countedTotal } = await getCartDetails(order, next)
 	order.total = countedTotal
 	order.subtotal = countedSubtotal
 	await order.save()
