@@ -16,6 +16,15 @@ const getAllOrders = async (req, res) => {
 		orders,
 	})
 }
+const getMyOrders = async (req, res) => {
+	const { userId } = req.user
+	const orders = await Orders.find({ user: userId })
+
+	res.status(StatusCodes.OK).json({
+		msg: "all my orders",
+		orders,
+	})
+}
 const getSingleByPaymentSecret = async (req, res) => {
 	try {
 		const { paymentSecret } = req.params
@@ -340,4 +349,5 @@ module.exports = {
 	createPaymentIntent,
 	getSingleByPaymentSecret,
 	getSingleByOrderId,
+	getMyOrders,
 }
