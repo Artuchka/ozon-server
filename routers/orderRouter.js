@@ -7,6 +7,7 @@ const {
 	updateOrder,
 	addToCart,
 	createPaymentIntent,
+	getSingleByPaymentSecret,
 } = require("../controllers/orderController")
 const { roleMiddleware } = require("../middleware/authMiddleware")
 const router = express.Router()
@@ -14,6 +15,7 @@ const router = express.Router()
 router.route("/").get(getCurrentUserCart).post(createOrder)
 
 router.route("/allOrders").get(roleMiddleware("admin"), getAllOrders)
+router.route("/payment-secret/:paymentSecret").get(getSingleByPaymentSecret)
 
 router
 	.route("/create-payment-intent")

@@ -16,6 +16,22 @@ const getAllOrders = async (req, res) => {
 		orders,
 	})
 }
+const getSingleByPaymentSecret = async (req, res) => {
+	const { paymentSecret } = req.params
+	const order = await Orders.findOne({
+		clientSecret: paymentSecret,
+	}).populate({
+		path: "items.product",
+		select: "title price description images",
+	})
+
+	checkPermission(req.user, order.user)
+
+	res.status(StatusCodes.OK).json({
+		msg: "by payment secret",
+		order,
+	})
+}
 
 const createOrder = async (req, res) => {
 	const { status } = req.body
@@ -60,35 +76,48 @@ const stripe = require("stripe")(
 )
 
 const updateOrder = async (req, res, next) => {
-	const { userId } = req.user
-	const { orderId } = req.params
+	try {
+		const { userId } = req.user
+		const { orderId } = req.params
 
-	console.log({ orderId })
-	console.log(req.body)
+		console.log({ orderId })
+		console.log(req.body)
 
-	const order = await Orders.findOne({ _id: orderId })
-	if (!order) {
-		throw new NotFoundError(`there is no order with id=${orderId}`)
-	}
-
-	const allowed = ["status", "items", "shippingFee", "discounts"]
-
-	for (const key in req.body) {
-		if (!allowed.includes(key)) {
-			throw new ForbiddenError(`not allowed to update ${key} field`)
+		const order = await Orders.findOne({ _id: orderId })
+		if (!order) {
+			throw new NotFoundError(`there is no order with id=${orderId}`)
 		}
-		order[key] = req.body[key]
+
+		const allowed = ["status", "items", "shippingFee", "discounts"]
+
+		for (const key in req.body) {
+			if (!allowed.includes(key)) {
+				throw new ForbiddenError(`not allowed to update ${key} field`)
+			}
+			order[key] = req.body[key]
+		}
+
+		const { countedSubtotal, countedTotal } = await getCartDetails(
+			order,
+			next
+		)
+		order.total = countedTotal
+		order.subtotal = countedSubtotal
+		await order.save()
+
+		// idk really. mb it should be here
+		// await order.populate({
+		// 	path: "items.product",
+		// 	select: "title price description images",
+		// })
+
+		res.status(StatusCodes.OK).json({
+			msg: "update",
+			order,
+		})
+	} catch (error) {
+		console.log(error)
 	}
-
-	const { countedSubtotal, countedTotal } = await getCartDetails(order, next)
-	order.total = countedTotal
-	order.subtotal = countedSubtotal
-	await order.save()
-
-	res.status(StatusCodes.OK).json({
-		msg: "update",
-		order,
-	})
 }
 
 const addToCart = async (req, res, next) => {
@@ -275,4 +304,5 @@ module.exports = {
 	getCurrentUserCart,
 	addToCart,
 	createPaymentIntent,
+	getSingleByPaymentSecret,
 }
