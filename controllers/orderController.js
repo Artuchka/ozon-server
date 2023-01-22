@@ -79,17 +79,20 @@ const getSingleByOrderId = async (req, res) => {
 		const { orderId } = req.params
 		const order = await Orders.findOne({
 			_id: orderId,
-		}).populate({
-			path: "items.product",
-			select: "title price description images",
 		})
+			.populate({
+				path: "items.product",
+				select: "title price description images",
+			})
+			.populate({
+				path: "user",
+				select: "firstName lastName email phone",
+			})
 
 		if (!order) {
-			throw new NotFoundError(
-				`there is no order with clientSecret=${paymentSecret}`
-			)
+			throw new NotFoundError(`there is no order with _id=${orderId}`)
 		}
-		checkPermission(req.user, order.user)
+		checkPermission(req.user, order.user._id)
 
 		res.status(StatusCodes.OK).json({
 			msg: "get single by orderId",
@@ -189,8 +192,9 @@ const updateOrder = async (req, res, next) => {
 
 const addToCart = async (req, res, next) => {
 	const { orderId } = req.params
-	const { productId, amount } = req.body
-
+	const { productId, amount, items } = req.body
+	console.log({ body: req.body })
+	console.log({ items })
 	const order = await Orders.findOne({
 		_id: orderId,
 	})
@@ -199,27 +203,18 @@ const addToCart = async (req, res, next) => {
 	}
 
 	let copyItems = [...order.items]
-	let isFound = false
-	if (amount === 0) {
-		copyItems = copyItems.filter(
-			(item) => item.product.toString() !== productId
-		)
-	} else {
-		for (let index = 0; index < copyItems.length; index++) {
-			if (copyItems[index].product.toString() === productId) {
-				copyItems[index].amount = amount
-				isFound = true
-				break
-			}
-		}
 
-		if (!isFound) {
-			copyItems.push({ product: productId, amount })
-		}
+	if (Array.isArray(items)) {
+		items.forEach(({ amount, product }) => {
+			console.log("adding", { amount, product })
+			copyItems = updateSingle(copyItems, amount, product._id)
+		})
+	} else {
+		copyItems = updateSingle(copyItems, amount, productId)
 	}
 
 	order.items = copyItems
-
+	console.log({ copyItems })
 	const { countedSubtotal, countedTotal, amountTotal, itemsLength } =
 		await getCartDetails(order, next)
 	order.total = countedTotal
@@ -237,46 +232,74 @@ const addToCart = async (req, res, next) => {
 	res.status(StatusCodes.OK).json({ msg: "added to cart", order })
 }
 
+function updateSingle(copyItems, amount, productId) {
+	let isFound = false
+
+	if (amount === 0) {
+		copyItems = copyItems.filter(
+			(item) => item.product.toString() !== productId
+		)
+	} else {
+		for (let index = 0; index < copyItems.length; index++) {
+			if (copyItems[index].product.toString() === productId) {
+				copyItems[index].amount = amount
+				isFound = true
+				break
+			}
+		}
+
+		if (!isFound) {
+			copyItems.push({ product: productId, amount })
+		}
+	}
+	return copyItems
+}
+
 const getCartDetails = async ({ items, shippingFee, discounts }, next) => {
-	let { countedSubtotal, amountTotal } = await items.reduce(
-		async (agg, item) => {
-			const foundItem = await Products.findOne({ _id: item.product })
-			if (!foundItem) {
-				return next(
-					new NotFoundError(`no such item with id ${item.product}`)
-				)
+	try {
+		let { countedSubtotal, amountTotal } = await items.reduce(
+			async (agg, item) => {
+				const foundItem = await Products.findOne({ _id: item.product })
+
+				if (!foundItem) {
+					throw new NotFoundError(
+						`no such item with id ${item.product}`
+					)
+				}
+				const prev = await agg
+				return {
+					countedSubtotal:
+						prev?.countedSubtotal + foundItem.price * item.amount,
+					amountTotal: prev.amountTotal + item.amount,
+				}
+			},
+			{ amountTotal: 0, countedSubtotal: 0 }
+		)
+		let countedTotal = countedSubtotal + shippingFee
+
+		discounts.forEach((discount) => {
+			if (discount.type === "minus") {
+				countedTotal -= discount.value
 			}
-			const prev = await agg
-			return {
-				countedSubtotal:
-					prev.countedSubtotal + foundItem.price * item.amount,
-				amountTotal: prev.amountTotal + item.amount,
+		})
+
+		discounts.forEach((discount) => {
+			if (discount.type === "percentage") {
+				countedTotal *= discount.value
 			}
-		},
-		{ amountTotal: 0, countedSubtotal: 0 }
-	)
-	let countedTotal = countedSubtotal + shippingFee
+		})
+		countedTotal = parseFloat(countedTotal.toFixed(2))
+		countedSubtotal = parseFloat(countedSubtotal.toFixed(2))
+		const itemsLength = items.length
 
-	discounts.forEach((discount) => {
-		if (discount.type === "minus") {
-			countedTotal -= discount.value
+		return {
+			countedSubtotal,
+			countedTotal,
+			amountTotal,
+			itemsLength,
 		}
-	})
-
-	discounts.forEach((discount) => {
-		if (discount.type === "percentage") {
-			countedTotal *= discount.value
-		}
-	})
-	countedTotal = parseFloat(countedTotal.toFixed(2))
-	countedSubtotal = parseFloat(countedSubtotal.toFixed(2))
-	const itemsLength = items.length
-
-	return {
-		countedSubtotal,
-		countedTotal,
-		amountTotal,
-		itemsLength,
+	} catch (error) {
+		console.log(error)
 	}
 }
 
