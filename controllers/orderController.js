@@ -16,15 +16,39 @@ const getAllOrders = async (req, res) => {
 		orders,
 	})
 }
+
 const getMyOrders = async (req, res) => {
 	const { userId } = req.user
-	const orders = await Orders.find({ user: userId })
+	const orders = await Orders.find({ user: userId }).populate({
+		path: "items.product",
+		select: "title price description images",
+	})
+
+	const details = getMyOrdersDetails(orders)
 
 	res.status(StatusCodes.OK).json({
 		msg: "all my orders",
 		orders,
+		details,
 	})
 }
+function getMyOrdersDetails(orders) {
+	const details = {
+		all: 0,
+		pending: 0,
+		paid: 0,
+		checkout: 0,
+		delivered: 0,
+		declined: 0,
+	}
+
+	orders.forEach((order) => {
+		details[order.status] += 1
+	})
+	details.all = orders.length
+	return details
+}
+
 const getSingleByPaymentSecret = async (req, res) => {
 	try {
 		const { paymentSecret } = req.params
