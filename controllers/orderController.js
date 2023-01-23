@@ -189,10 +189,10 @@ const updateOrder = async (req, res, next) => {
 		await order.save()
 
 		// idk really. mb it should be here
-		// await order.populate({
-		// 	path: "items.product",
-		// 	select: "title price description images",
-		// })
+		await order.populate({
+			path: "items.product",
+			select: "title price description images",
+		})
 
 		res.status(StatusCodes.OK).json({
 			msg: "update",
