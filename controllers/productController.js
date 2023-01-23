@@ -1,17 +1,11 @@
 const { StatusCodes } = require("http-status-codes")
 const { Products } = require("../models/productModel")
-const path = require("path")
 const {
 	NotFoundError,
 	ForbiddenError,
 	BadRequestError,
 } = require("../errors/customError")
-const { title } = require("process")
-const { log } = require("console")
-const { rusToLatin } = require("../utils/langTranslit")
-const CyrillicToTranslit = require("cyrillic-to-translit-js")
-
-const { createHash } = require("node:crypto")
+const { uploadFile } = require("../utils/uploadFile")
 
 const getAllProducts = async (req, res) => {
 	const query = req.query
@@ -97,12 +91,29 @@ const getAllProducts = async (req, res) => {
 	const pagesProducts = await mongoQueryPaged
 	const filteredProducts = await mongoQueryFiltered
 
-	let maxPrice = 0
-	let minPrice = allProducts[0].price
-
 	const productsFound = filteredProducts.length
 	const pagesFound = Math.ceil(productsFound / limit)
 
+	const details = {
+		productsFound,
+		pagesFound,
+	}
+
+	res.status(StatusCodes.OK).json({
+		msg: "all products",
+		products: pagesProducts,
+		details,
+	})
+}
+
+const getProductsDetails = async (req, res) => {
+	const allProducts = await Products.find()
+
+	let maxPrice = 0
+	let minPrice = allProducts[0].price
+	const companies = new Set()
+	const categories = new Set()
+	const tags = new Set()
 	allProducts.forEach((product) => {
 		const { price } = product
 		if (price > maxPrice) {
@@ -111,12 +122,6 @@ const getAllProducts = async (req, res) => {
 		if (price < minPrice) {
 			minPrice = price
 		}
-	})
-
-	const companies = new Set()
-	const categories = new Set()
-	const tags = new Set()
-	allProducts.forEach((product) => {
 		product.companies.forEach((company) => {
 			companies.add(company)
 		})
@@ -129,8 +134,6 @@ const getAllProducts = async (req, res) => {
 	})
 
 	const details = {
-		productsFound,
-		pagesFound,
 		maxPrice,
 		minPrice,
 		companies: Array.from(companies),
@@ -138,12 +141,13 @@ const getAllProducts = async (req, res) => {
 		categories: Array.from(categories),
 	}
 
+	console.log("GETTING DETAILS FOR PRODUCTSSS")
 	res.status(StatusCodes.OK).json({
-		msg: "all products",
-		products: pagesProducts,
+		msg: "details",
 		details,
 	})
 }
+
 const getMyProducts = async (req, res) => {
 	let sortParam = "createdAt"
 	const { userId } = req.user
@@ -266,7 +270,7 @@ const uploadImage = async (req, res) => {
 		throw new BadRequestError(`please provide image/images`)
 	}
 	const uploadPaths = images.map((img) => {
-		return upload(img, "image", maxSizeImage)
+		return uploadFile(img, "image", maxSizeImage)
 	})
 
 	res.status(StatusCodes.OK).json({
@@ -287,7 +291,7 @@ const uploadVideo = async (req, res) => {
 		throw new BadRequestError(`please provide video`)
 	}
 	const uploadPaths = videos.map((img) => {
-		return upload(img, "video", maxSizeVideo)
+		return uploadFile(img, "video", maxSizeVideo)
 	})
 
 	res.status(StatusCodes.OK).json({
@@ -305,51 +309,5 @@ module.exports = {
 	deleteProduct,
 	uploadVideo,
 	getMyProducts,
+	getProductsDetails,
 }
-
-const cyrillicToTranslit = new CyrillicToTranslit()
-
-const upload = (file, type, maxSize) => {
-	let regex = /image\//
-	if (type === "video") {
-		regex = /video\//
-	}
-	if (!file?.mimetype?.match(regex)) {
-		throw new BadRequestError(`please provide ${type} only`)
-	}
-	if (file?.size > maxSize) {
-		throw new BadRequestError(
-			`the image is too big, send only up to ${
-				maxSize / 1024 / 1024
-			} MB = ${maxSize} bytes`
-		)
-	}
-
-	const translatedName = cyrillicToTranslit
-		.transform(file.name, "_")
-		.toLowerCase()
-
-	const nameHashed = file.md5
-	const dotIndex = translatedName.lastIndexOf(".")
-
-	const nameWithHash =
-		translatedName.substring(0, dotIndex) +
-		"=" +
-		nameHashed +
-		translatedName.substring(dotIndex)
-
-	const uploadPath = `/uploads/${type}/${nameWithHash}`
-
-	file.mv(path.join(__dirname, "../public", uploadPath), (err) => {
-		if (err) {
-			console.log(err)
-		} else {
-			console.log(`uploaded ${type}`)
-		}
-	})
-	return uploadPath
-}
-
-const name = "name.mp4"
-const dotIndex = name.lastIndexOf(".")
-console.log({ dotIndex })

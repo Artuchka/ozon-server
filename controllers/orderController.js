@@ -354,7 +354,6 @@ const getCurrentUserCart = async (req, res) => {
 		select: "title price description images",
 	})
 
-	console.log({ order })
 	if (!order) {
 		throw new NotFoundError(
 			`there is no \`cart\` order for user with id=${userId}`
