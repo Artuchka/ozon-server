@@ -19,10 +19,15 @@ const getAllOrders = async (req, res) => {
 
 const getMyOrders = async (req, res) => {
 	const { userId } = req.user
-	const orders = await Orders.find({ user: userId }).populate({
-		path: "items.product",
-		select: "title price description images",
+	const orders = await Orders.find({
+		user: userId,
+		status: { $not: { $eq: "cart" } },
 	})
+		.sort("createdAt")
+		.populate({
+			path: "items.product",
+			select: "title price description images",
+		})
 
 	const details = getMyOrdersDetails(orders)
 
@@ -42,8 +47,8 @@ function getMyOrdersDetails(orders) {
 		declined: 0,
 	}
 
-	orders.forEach((order) => {
-		details[order.status] += 1
+	orders.forEach(({ status }) => {
+		details[status] += 1
 	})
 	details.all = orders.length
 	return details
@@ -165,6 +170,10 @@ const updateOrder = async (req, res, next) => {
 				throw new ForbiddenError(`not allowed to update ${key} field`)
 			}
 			order[key] = req.body[key]
+		}
+
+		if (req.body.status === "paid") {
+			order.paidAt = new Date.now()
 		}
 
 		const { countedSubtotal, countedTotal } = await getCartDetails(

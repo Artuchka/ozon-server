@@ -32,62 +32,68 @@ const DiscountSchema = new mongoose.Schema({
 	},
 })
 
-const OrderSchema = new mongoose.Schema({
-	items: {
-		type: [SingleProductOrderSchema],
-		default: [],
-		required: true,
-	},
-	subtotal: {
-		type: Number,
-		default: 0,
-		required: true,
-	},
-
-	shippingFee: {
-		type: Number,
-		default: 0,
-		required: true,
-	},
-	discounts: {
-		type: [DiscountSchema],
-		default: [],
-		required: false,
-	},
-	total: {
-		type: Number,
-		default: 0,
-		required: true,
-	},
-	amountTotal: {
-		type: Number,
-		default: 0,
-		required: true,
-	},
-	itemsLength: {
-		type: Number,
-		default: 0,
-		required: true,
-	},
-	clientSecret: {
-		type: String,
-		default: "placeholder",
-		required: true,
-	},
-	user: {
-		type: mongoose.Schema.Types.ObjectId,
-		ref: "User",
-		required: true,
-	},
-	status: {
-		type: String,
-		enum: {
-			values: ["cart", "checkout", "pending", "paid", "delievered"],
-			message: "{VALUE} is not supported for order status",
+const OrderSchema = new mongoose.Schema(
+	{
+		items: {
+			type: [SingleProductOrderSchema],
+			default: [],
+			required: true,
 		},
-		required: true,
+		subtotal: {
+			type: Number,
+			default: 0,
+			required: true,
+		},
+
+		shippingFee: {
+			type: Number,
+			default: 0,
+			required: true,
+		},
+		discounts: {
+			type: [DiscountSchema],
+			default: [],
+			required: false,
+		},
+		total: {
+			type: Number,
+			default: 0,
+			required: true,
+		},
+		amountTotal: {
+			type: Number,
+			default: 0,
+			required: true,
+		},
+		itemsLength: {
+			type: Number,
+			default: 0,
+			required: true,
+		},
+		clientSecret: {
+			type: String,
+			default: "placeholder",
+			required: true,
+		},
+		user: {
+			type: mongoose.Schema.Types.ObjectId,
+			ref: "User",
+			required: true,
+		},
+		status: {
+			type: String,
+			enum: {
+				values: ["cart", "checkout", "pending", "paid", "delievered"],
+				message: "{VALUE} is not supported for order status",
+			},
+			required: true,
+		},
+		paidAt: {
+			type: Date,
+		},
 	},
-})
+	{ timestamps: true }
+)
 
 const Orders = new mongoose.model("Order", OrderSchema)
 
