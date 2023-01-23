@@ -87,7 +87,11 @@ const getSingleByOrderId = async (req, res) => {
 		})
 			.populate({
 				path: "items.product",
-				select: "title price description images",
+				select: "title price description images ",
+				populate: {
+					path: "vendor",
+					select: "firstName lastName username ",
+				},
 			})
 			.populate({
 				path: "user",
@@ -173,7 +177,7 @@ const updateOrder = async (req, res, next) => {
 		}
 
 		if (req.body.status === "paid") {
-			order.paidAt = new Date.now()
+			order.paidAt = Date.now()
 		}
 
 		const { countedSubtotal, countedTotal } = await getCartDetails(
