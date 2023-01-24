@@ -1,14 +1,25 @@
 const { verifyToken } = require("../utils/jwt")
 
-const authMiddleware = async (req, res, next) => {
-	console.log(req.signedCookies)
-	console.log(req.cookies)
-	const { token } = req.cookies
+const authMiddleware = ({ isOptional } = { isOptional: false }) => {
+	return async (req, res, next) => {
+		// console.log(req.signedCookies)
+		// console.log(req.cookies)
+		try {
+			const { token } = req.cookies
 
-	const decoded = verifyToken(token)
-	// console.log(decoded)
-	req.user = decoded
-	next()
+			const decoded = verifyToken(token)
+
+			console.log({ decoded })
+			req.user = decoded
+			next()
+		} catch (error) {
+			if (isOptional) {
+				console.log("returning cuz optional")
+				return next()
+			}
+			throw error
+		}
+	}
 }
 
 const { ForbiddenError } = require("../errors/customError")

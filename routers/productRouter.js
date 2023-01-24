@@ -19,26 +19,26 @@ const router = express.Router()
 router
 	.route("/")
 	.get(getAllProducts)
-	.post(authMiddleware, roleMiddleware("admin", "vendor"), createProduct)
+	.post(authMiddleware(), roleMiddleware("admin", "vendor"), createProduct)
 
 router
 	.route("/uploadImage")
-	.post(authMiddleware, roleMiddleware("admin", "vendor"), uploadImage)
+	.post(authMiddleware(), roleMiddleware("admin", "vendor"), uploadImage)
 
 router
 	.route("/uploadVideo")
-	.post(authMiddleware, roleMiddleware("admin", "vendor"), uploadVideo)
+	.post(authMiddleware(), roleMiddleware("admin", "vendor"), uploadVideo)
 
 router
 	.route("/my")
-	.get(authMiddleware, roleMiddleware("admin", "vendor"), getMyProducts)
+	.get(authMiddleware(), roleMiddleware("admin", "vendor"), getMyProducts)
 
 router.route("/getDetails").get(getProductsDetails)
 
 router
 	.route("/:id")
-	.get(getSingleProduct)
-	.patch(authMiddleware, roleMiddleware("admin", "vendor"), updateProduct)
-	.delete(authMiddleware, roleMiddleware("admin", "vendor"), deleteProduct)
+	.get(authMiddleware({ isOptional: true }), getSingleProduct)
+	.patch(authMiddleware(), roleMiddleware("admin", "vendor"), updateProduct)
+	.delete(authMiddleware(), roleMiddleware("admin", "vendor"), deleteProduct)
 
 module.exports = { productRouter: router }
