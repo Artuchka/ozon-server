@@ -155,55 +155,68 @@ const stripe = require("stripe")(
 )
 
 const updateOrder = async (req, res, next) => {
-	try {
-		const { userId } = req.user
-		const { orderId } = req.params
+	// try {
+	const { userId } = req.user
+	const { orderId } = req.params
 
-		console.log({ orderId })
-		console.log(req.body)
+	console.log({ orderId })
+	console.log(req.body)
 
-		const order = await Orders.findOne({ _id: orderId })
-		if (!order) {
-			throw new NotFoundError(`there is no order with id=${orderId}`)
-		}
-
-		const allowed = ["status", "items", "shippingFee", "discounts"]
-
-		for (const key in req.body) {
-			if (!allowed.includes(key)) {
-				throw new ForbiddenError(`not allowed to update ${key} field`)
-			}
-			order[key] = req.body[key]
-		}
-
-		if (req.body.status === "paid") {
-			order.paidAt = Date.now()
-		}
-
-		const { countedSubtotal, countedTotal } = await getCartDetails(
-			order,
-			next
-		)
-		order.total = countedTotal
-		order.subtotal = countedSubtotal
-		await order.save()
-
-		// idk really. mb it should be here
-		await order.populate({
-			path: "items.product",
-			select: "title price description images",
-		})
-
-		res.status(StatusCodes.OK).json({
-			msg: "update",
-			order,
-		})
-	} catch (error) {
-		console.log(error)
+	const order = await Orders.findOne({ _id: orderId })
+	if (!order) {
+		throw new NotFoundError(`there is no order with id=${orderId}`)
 	}
+
+	const allowed = ["status", "items", "shippingFee", "discounts"]
+
+	for (const key in req.body) {
+		if (!allowed.includes(key)) {
+			throw new ForbiddenError(`not allowed to update ${key} field`)
+		}
+		if (key === "discounts") {
+			checkDiscounts(req.body[key])
+		}
+		order[key] = req.body[key]
+	}
+
+	if (req.body.status === "paid") {
+		order.paidAt = Date.now()
+	}
+
+	const { countedSubtotal, countedTotal } = await getCartDetails(order, next)
+	order.total = countedTotal
+	order.subtotal = countedSubtotal
+	await order.save()
+
+	// idk really. mb it should be here
+	await order.populate({
+		path: "items.product",
+		select: "title price description images",
+	})
+
+	res.status(StatusCodes.OK).json({
+		msg: "update",
+		order,
+	})
+	// } catch (error) {
+	// 	console.log(error)
+	// }
 }
 
-const addToCart = async (req, res, next) => {
+function checkDiscounts(newDiscounts) {
+	const countMap = {}
+	newDiscounts.forEach((disc) => {
+		if (disc.name in countMap) {
+			throw new BadRequestError(
+				`Промокод можно применить только один раз`
+			)
+		} else {
+			countMap[disc.name] = 1
+		}
+	})
+}
+
+const addToCart = async (req, res) => {
 	const { orderId } = req.params
 	const { productId, amount, items } = req.body
 	console.log({ body: req.body })
@@ -229,7 +242,7 @@ const addToCart = async (req, res, next) => {
 	order.items = copyItems
 	console.log({ copyItems })
 	const { countedSubtotal, countedTotal, amountTotal, itemsLength } =
-		await getCartDetails(order, next)
+		await getCartDetails(order)
 	order.total = countedTotal
 	order.subtotal = countedSubtotal
 	order.amountTotal = amountTotal
@@ -268,52 +281,54 @@ function updateSingle(copyItems, amount, productId) {
 	return copyItems
 }
 
-const getCartDetails = async ({ items, shippingFee, discounts }, next) => {
-	try {
-		let { countedSubtotal, amountTotal } = await items.reduce(
-			async (agg, item) => {
-				const foundItem = await Products.findOne({ _id: item.product })
+const getCartDetails = async ({ items, shippingFee, discounts }) => {
+	// try {
+	let { countedSubtotal, amountTotal } = await items.reduce(
+		async (agg, item) => {
+			const foundItem = await Products.findOne({ _id: item.product })
 
-				if (!foundItem) {
-					throw new NotFoundError(
-						`no such item with id ${item.product}`
-					)
-				}
-				const prev = await agg
-				return {
-					countedSubtotal:
-						prev?.countedSubtotal + foundItem.price * item.amount,
-					amountTotal: prev.amountTotal + item.amount,
-				}
-			},
-			{ amountTotal: 0, countedSubtotal: 0 }
-		)
-		let countedTotal = countedSubtotal + shippingFee
-
-		discounts.forEach((discount) => {
-			if (discount.type === "minus") {
-				countedTotal -= discount.value
+			if (!foundItem) {
+				throw new NotFoundError(`no such item with id ${item.product}`)
 			}
-		})
-
-		discounts.forEach((discount) => {
-			if (discount.type === "percentage") {
-				countedTotal *= discount.value
+			const prev = await agg
+			return {
+				countedSubtotal:
+					prev?.countedSubtotal + foundItem.price * item.amount,
+				amountTotal: prev.amountTotal + item.amount,
 			}
-		})
-		countedTotal = parseFloat(countedTotal.toFixed(2))
-		countedSubtotal = parseFloat(countedSubtotal.toFixed(2))
-		const itemsLength = items.length
+		},
+		{ amountTotal: 0, countedSubtotal: 0 }
+	)
+	let countedTotal = countedSubtotal + shippingFee
 
-		return {
-			countedSubtotal,
-			countedTotal,
-			amountTotal,
-			itemsLength,
+	discounts.forEach((discount) => {
+		if (discount.type === "minus") {
+			countedTotal -= discount.value
 		}
-	} catch (error) {
-		console.log(error)
+	})
+
+	discounts.forEach((discount) => {
+		if (discount.type === "percentage") {
+			countedTotal *= discount.value
+		}
+	})
+	countedTotal = parseFloat(countedTotal.toFixed(2))
+	countedSubtotal = parseFloat(countedSubtotal.toFixed(2))
+	const itemsLength = items.length
+	console.log({ countedTotal })
+	if (countedTotal < 0) {
+		console.log("throwing")
+		throw new BadRequestError(`Для этого промокода хочу чек побольше =)`)
 	}
+	return {
+		countedSubtotal,
+		countedTotal,
+		amountTotal,
+		itemsLength,
+	}
+	// } catch (error) {
+	// 	console.log(error)
+	// }
 }
 
 const deleteOrder = async (req, res) => {
