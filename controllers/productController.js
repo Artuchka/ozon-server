@@ -166,16 +166,15 @@ const getMyProducts = async (req, res) => {
 const adminId = "639da92965c6529fd71fa73a"
 const getSingleProduct = async (req, res) => {
 	const { id } = req.params
+
 	const userId = req?.user?.userId
 	const newVisit = { date: Date.now(), user: userId ? userId : adminId }
 
-	const returnValue = await Statistics.updateOne(
+	await Statistics.updateOne(
 		{ product: id },
 		{ $push: { visits: newVisit } },
 		{ upsert: true }
 	)
-
-	console.log({ returnValue })
 
 	const product = await Products.findOne({ _id: id })
 		.populate({

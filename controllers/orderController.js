@@ -23,7 +23,7 @@ const getMyOrders = async (req, res) => {
 		user: userId,
 		status: { $not: { $eq: "cart" } },
 	})
-		.sort("createdAt")
+		.sort("-paidAt")
 		.populate({
 			path: "items.product",
 			select: "title price description images",
