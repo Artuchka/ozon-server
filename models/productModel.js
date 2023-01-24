@@ -35,6 +35,12 @@ const ProductSchema = new mongoose.Schema(
 			required: true,
 			default: ["black", "yellow"],
 		},
+
+		specs: {
+			type: [SpecSchema],
+			required: true,
+			default: [],
+		},
 		tags: {
 			type: [String],
 			required: true,
@@ -67,9 +73,6 @@ const ProductSchema = new mongoose.Schema(
 			required: true,
 			default: 0,
 			min: 0,
-		},
-		specs: {
-			type: [SpecSchema],
 		},
 		vendor: {
 			type: mongoose.Schema.Types.ObjectId,
