@@ -12,6 +12,10 @@ const {
 	getAddressByCoordinates,
 } = require("../utils/location")
 
+// This is your test secret API key.
+const stripe = require("stripe")(
+	"sk_test_51MAxWLBjYPBxkDu0F5giJjXsQorKYBLkDrhVFdgCrdb7W140cucAxZlMNHCICf4pMik8Hq6wNoeQYphpBQreY1Rj00jCSyIBC4"
+)
 const getAllOrders = async (req, res) => {
 	const orders = await Orders.find({})
 
@@ -48,7 +52,7 @@ function getMyOrdersDetails(orders) {
 		paid: 0,
 		checkout: 0,
 		delivered: 0,
-		declined: 0,
+		refunded: 0,
 	}
 
 	orders.forEach(({ status }) => {
@@ -83,9 +87,11 @@ const getSingleByPaymentSecret = async (req, res) => {
 		console.log(error)
 	}
 }
+
 const getSingleByOrderId = async (req, res) => {
 	try {
 		const { orderId } = req.params
+
 		const order = await Orders.findOne({
 			_id: orderId,
 		})
@@ -157,11 +163,6 @@ const createOrder = async (req, res) => {
 		order,
 	})
 }
-
-// This is your test secret API key.
-const stripe = require("stripe")(
-	"sk_test_51MAxWLBjYPBxkDu0F5giJjXsQorKYBLkDrhVFdgCrdb7W140cucAxZlMNHCICf4pMik8Hq6wNoeQYphpBQreY1Rj00jCSyIBC4"
-)
 
 const updateOrder = async (req, res, next) => {
 	// try {
@@ -428,6 +429,47 @@ const createPaymentIntent = async (req, res, next) => {
 	}
 }
 
+const refundOrder = async (req, res) => {
+	const { orderId } = req.body
+
+	const order = await Orders.findOne({
+		_id: orderId,
+	})
+		.populate({
+			path: "items.product",
+			select: "title price description images ",
+			populate: {
+				path: "vendor",
+				select: "firstName lastName username ",
+			},
+		})
+		.populate({
+			path: "user",
+			select: "firstName lastName email phone",
+		})
+
+	if (!order) {
+		return new NotFoundError(`there is no order with id=${orderId}`)
+	}
+
+	const payment_intent = order.clientSecret.split("_secret_")[0]
+	const refund = await stripe.refunds.create({
+		payment_intent,
+	})
+
+	if (refund?.status === "succeeded") {
+		order.refundId = refund.id
+		order.status = "refunded"
+	}
+	console.log(refund)
+	await order.save()
+
+	res.status(StatusCodes.OK).json({
+		msg: "refunded",
+		order,
+	})
+}
+
 module.exports = {
 	getAllOrders,
 	createOrder,
@@ -439,4 +481,5 @@ module.exports = {
 	getSingleByPaymentSecret,
 	getSingleByOrderId,
 	getMyOrders,
+	refundOrder,
 }

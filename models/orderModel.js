@@ -85,6 +85,11 @@ const OrderSchema = new mongoose.Schema(
 			default: "placeholder",
 			required: true,
 		},
+		refundId: {
+			type: String,
+			default: "placeholder",
+			required: true,
+		},
 		user: {
 			type: mongoose.Schema.Types.ObjectId,
 			ref: "User",
@@ -93,7 +98,14 @@ const OrderSchema = new mongoose.Schema(
 		status: {
 			type: String,
 			enum: {
-				values: ["cart", "checkout", "pending", "paid", "delievered"],
+				values: [
+					"cart",
+					"checkout",
+					"pending",
+					"paid",
+					"delievered",
+					"refunded",
+				],
 				message: "{VALUE} is not supported for order status",
 			},
 			required: true,
