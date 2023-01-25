@@ -45,7 +45,7 @@ async function getAddressFromDadata(coords) {
 	const response = await fetch(urlDadata, options)
 	const data = await response.json()
 
-	return data.suggestions[0].unrestricted_value
+	return data?.suggestions?.[0]?.unrestricted_value
 }
 
 module.exports = { getAddressByCoordinates }
