@@ -70,6 +70,11 @@ const OrderSchema = new mongoose.Schema(
 			default: 0,
 			required: true,
 		},
+		deliveryCoordinates: {
+			type: [Number, Number],
+			required: true,
+			default: [0, 0],
+		},
 		clientSecret: {
 			type: String,
 			default: "placeholder",

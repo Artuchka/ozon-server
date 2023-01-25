@@ -7,6 +7,10 @@ const {
 	BadRequestError,
 } = require("../errors/customError")
 const { Products } = require("../models/productModel")
+const {
+	getStreetByCoordinates,
+	getAddressByCoordinates,
+} = require("../utils/location")
 
 const getAllOrders = async (req, res) => {
 	const orders = await Orders.find({})
@@ -97,6 +101,9 @@ const getSingleByOrderId = async (req, res) => {
 				path: "user",
 				select: "firstName lastName email phone",
 			})
+		const { name, description } = await getAddressByCoordinates(
+			order.deliveryCoordinates
+		)
 
 		if (!order) {
 			throw new NotFoundError(`there is no order with _id=${orderId}`)
@@ -106,6 +113,7 @@ const getSingleByOrderId = async (req, res) => {
 		res.status(StatusCodes.OK).json({
 			msg: "get single by orderId",
 			order,
+			street: { name, description },
 		})
 	} catch (error) {
 		console.log(error)
@@ -167,7 +175,13 @@ const updateOrder = async (req, res, next) => {
 		throw new NotFoundError(`there is no order with id=${orderId}`)
 	}
 
-	const allowed = ["status", "items", "shippingFee", "discounts"]
+	const allowed = [
+		"status",
+		"items",
+		"shippingFee",
+		"discounts",
+		"deliveryCoordinates",
+	]
 
 	for (const key in req.body) {
 		if (!allowed.includes(key)) {
