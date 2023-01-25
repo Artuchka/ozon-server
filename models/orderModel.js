@@ -75,6 +75,11 @@ const OrderSchema = new mongoose.Schema(
 			required: true,
 			default: [0, 0],
 		},
+		isCustomCoordinates: {
+			type: Boolean,
+			required: true,
+			default: false,
+		},
 		clientSecret: {
 			type: String,
 			default: "placeholder",

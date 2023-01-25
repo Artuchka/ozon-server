@@ -101,9 +101,7 @@ const getSingleByOrderId = async (req, res) => {
 				path: "user",
 				select: "firstName lastName email phone",
 			})
-		const { name, description } = await getAddressByCoordinates(
-			order.deliveryCoordinates
-		)
+		const street = await getAddressByCoordinates(order.deliveryCoordinates)
 
 		if (!order) {
 			throw new NotFoundError(`there is no order with _id=${orderId}`)
@@ -113,7 +111,10 @@ const getSingleByOrderId = async (req, res) => {
 		res.status(StatusCodes.OK).json({
 			msg: "get single by orderId",
 			order,
-			street: { name, description },
+			address: {
+				street: street,
+				isCustomAddress: order.isCustomCoordinates,
+			},
 		})
 	} catch (error) {
 		console.log(error)
@@ -181,6 +182,7 @@ const updateOrder = async (req, res, next) => {
 		"shippingFee",
 		"discounts",
 		"deliveryCoordinates",
+		"isCustomCoordinates",
 	]
 
 	for (const key in req.body) {
@@ -202,7 +204,6 @@ const updateOrder = async (req, res, next) => {
 	order.subtotal = countedSubtotal
 	await order.save()
 
-	// idk really. mb it should be here
 	await order.populate({
 		path: "items.product",
 		select: "title price description images",
