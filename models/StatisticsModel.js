@@ -29,7 +29,7 @@ const StatisticsSchema = new Schema({
 		default: [],
 		required: true,
 	},
-	returned: {
+	refunded: {
 		type: [ActionDetailSchema],
 		default: [],
 		required: true,

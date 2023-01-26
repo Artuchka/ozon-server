@@ -455,6 +455,7 @@ const refundOrder = async (req, res) => {
 	const payment_intent = order.clientSecret.split("_secret_")[0]
 	const refund = await stripe.refunds.create({
 		payment_intent,
+		metadata: { orderId },
 	})
 
 	if (refund?.status === "succeeded") {
