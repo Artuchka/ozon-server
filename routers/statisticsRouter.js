@@ -7,10 +7,10 @@ const {
 
 const router = express.Router()
 
-router.route(roleMiddleware("vendor", "admin"), "/").get(getAllMyStatistics)
+router.route("/").get(roleMiddleware("vendor", "admin"), getAllMyStatistics)
 
 router
-	.route(roleMiddleware("vendor", "admin"), "/:productId")
-	.get(getMySingleStatistics)
+	.route("/:productId")
+	.get(roleMiddleware("vendor", "admin"), getMySingleStatistics)
 
 module.exports = { statisticsRouter: router }
