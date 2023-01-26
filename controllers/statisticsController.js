@@ -1,13 +1,31 @@
 const { StatusCodes } = require("http-status-codes")
 const { Statistics } = require("../models/StatisticsModel")
 const { checkPermission } = require("../utils/checkPermission")
+const { NotFoundError } = require("../errors/customError")
+const { default: mongoose } = require("mongoose")
 
 const getAllMyStatistics = async (req, res) => {
 	const { userId } = req.user
 
-	const stats = await Statistics.find({
-		"product.vendor": userId,
-	})
+	const stats = await Statistics.aggregate([
+		{
+			$lookup: {
+				from: "products",
+				localField: "product",
+				foreignField: "_id",
+				as: "productDetails",
+			},
+		},
+		{
+			$match: {
+				"productDetails.vendor": mongoose.Types.ObjectId(userId),
+			},
+		},
+	])
+
+	console.log("-----------")
+	console.log(stats)
+	console.log("-----------")
 
 	res.status(StatusCodes.OK).json({
 		msg: "all my statistics",
@@ -27,6 +45,10 @@ const getMySingleStatistics = async (req, res) => {
 			path: "vendor",
 		},
 	})
+
+	if (!stat) {
+		throw new NotFoundError(`No stats for product with id = ${productId}`)
+	}
 
 	checkPermission(req.user, stat?.product?.vendor._id)
 

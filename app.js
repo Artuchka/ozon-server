@@ -63,6 +63,9 @@ app.use(errorHandlerMiddleware)
 
 const start = async () => {
 	try {
+		console.log("-------")
+		console.log(new Date().toString())
+		console.log("-------")
 		await connectDB(process.env.MONGO_URL)
 		console.log("connected to DB")
 		app.listen(port, () => {
