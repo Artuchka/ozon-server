@@ -34,6 +34,11 @@ const StatisticsSchema = new Schema({
 		default: [],
 		required: true,
 	},
+	bookmarked: {
+		type: [ActionDetailSchema],
+		default: [],
+		required: true,
+	},
 })
 
 const Statistics = new model("Statistics", StatisticsSchema)

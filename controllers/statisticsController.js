@@ -28,7 +28,7 @@ const getMySingleStatistics = async (req, res) => {
 		},
 	})
 
-	checkPermission(req.user, stat.product.vendor._id)
+	checkPermission(req.user, stat?.product?.vendor._id)
 
 	// console.log({ stats })
 
