@@ -32,7 +32,12 @@ const UserSchema = new mongoose.Schema(
 			required: true,
 			default: "placeholder",
 		},
-		verifiedEmail: {
+		verifyToken: {
+			type: String,
+			required: true,
+			default: "placeholder",
+		},
+		isVerifiedEmail: {
 			type: Boolean,
 			required: true,
 			default: false,
