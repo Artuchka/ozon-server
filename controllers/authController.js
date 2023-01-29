@@ -78,7 +78,7 @@ const loginPasswordless = async (req, res) => {
 	await foundUser.save()
 
 	// sending email
-	// sendEmail({ emailTo: email })
+	sendEmail({ emailTo: email, token: verifyToken })
 
 	res.status(StatusCodes.OK).json({
 		msg: `Проверьте вашу почту (${email})!`,
@@ -101,7 +101,7 @@ const registerPasswordless = async (req, res) => {
 	})
 
 	// sending email
-	// sendEmail({ emailTo: email })
+	sendEmail({ emailTo: email, token: verifyToken })
 
 	res.status(StatusCodes.OK).json({
 		msg: `Проверьте вашу почту (${email})!`,

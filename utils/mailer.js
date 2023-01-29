@@ -10,7 +10,7 @@ const sendEmail = ({ emailTo, token }) => {
 
 	new SibApiV3Sdk.TransactionalEmailsApi()
 		.sendTransacEmail({
-			sender: { email: "yandex949@gmail.com", name: "0Z0N fake" },
+			sender: { email: "artem.gorbunov.2002@list.ru", name: "0Z0N-fake" },
 			subject: "Пожалуйста, подтвердите вход в 0Z0N-fake",
 			htmlContent: generateVerificationEmail({ frontURL, token }),
 			params: {
