@@ -48,9 +48,9 @@ const streamifier = require("streamifier")
 const { log } = require("console")
 cloudinary.config({
 	secure: true,
-	cloud_name: "dzy8xh83i",
-	api_key: "617847489894368",
-	api_secret: "vLY0UkWpAoQRjxWJmgAZ3oqB4oY",
+	cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+	api_key: process.env.CLOUDINARY_CLOUD_API_KEY,
+	api_secret: process.env.CLOUDINARY_CLOUD_API_SECRET,
 })
 
 const uploadFileToCloud = async (file, type, maxSize) => {

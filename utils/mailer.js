@@ -75,7 +75,7 @@ let transporter = nodemailer.createTransport({
 	secure: false, // true for 465, false for other ports
 	auth: {
 		user: "yandex949@gmail.com",
-		pass: "xsmtpsib-3a8656d0501b6acda284541e49db3bb7b2b46cd4b3080d6e8722471b9be326e2-ZrKcqnzfCAEMWvFT",
+		pass: process.env.SENDIINBLUE_SMTP_KEY,
 	},
 })
 

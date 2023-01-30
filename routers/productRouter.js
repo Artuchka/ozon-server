@@ -23,13 +23,11 @@ router
 
 router
 	.route("/uploadImage")
-	// .post(authMiddleware(), roleMiddleware("admin", "vendor"), uploadImage)
-	.post(uploadImage)
+	.post(authMiddleware(), roleMiddleware("admin", "vendor"), uploadImage)
 
 router
 	.route("/uploadVideo")
-	// .post(authMiddleware(), roleMiddleware("admin", "vendor"), uploadVideo)
-	.post(uploadVideo)
+	.post(authMiddleware(), roleMiddleware("admin", "vendor"), uploadVideo)
 
 router
 	.route("/my")
