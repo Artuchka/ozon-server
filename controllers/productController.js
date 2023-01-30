@@ -5,7 +5,7 @@ const {
 	ForbiddenError,
 	BadRequestError,
 } = require("../errors/customError")
-const { uploadFile } = require("../utils/uploadFile")
+const { uploadFile, uploadFileToCloud } = require("../utils/uploadFile")
 const { Statistics } = require("../models/StatisticsModel")
 
 const getAllProducts = async (req, res) => {
@@ -275,14 +275,21 @@ const deleteProduct = async (req, res) => {
 const uploadImage = async (req, res) => {
 	const maxSizeImage = 1024 * 1024 * 2
 	let images = req?.files?.images
-	if (images.name && !images.length) {
+	if (images?.name && !images.length) {
 		images = [images]
 	}
-	if (!images || images.length < 1) {
+	if (!images || images?.length < 1) {
 		throw new BadRequestError(`please provide image/images`)
 	}
-	const uploadPaths = images.map((img) => {
-		return uploadFile(img, "image", maxSizeImage)
+	console.log({ images })
+	const uploadImagesInfo = await Promise.allSettled(
+		images.map(async (img) => {
+			return await uploadFileToCloud(img, "image", maxSizeImage)
+		})
+	)
+
+	const uploadPaths = uploadImagesInfo.map((item) => {
+		return item.value.secure_url
 	})
 
 	res.status(StatusCodes.OK).json({
@@ -302,8 +309,15 @@ const uploadVideo = async (req, res) => {
 	if (!videos || videos.length < 1) {
 		throw new BadRequestError(`please provide video`)
 	}
-	const uploadPaths = videos.map((img) => {
-		return uploadFile(img, "video", maxSizeVideo)
+
+	const uploadVideosInfo = await Promise.allSettled(
+		videos.map(async (img) => {
+			return await uploadFileToCloud(img, "video", maxSizeVideo)
+		})
+	)
+
+	const uploadPaths = uploadVideosInfo.map((item) => {
+		return item.value.secure_url
 	})
 
 	res.status(StatusCodes.OK).json({
