@@ -2,7 +2,7 @@ const path = require("path")
 const CyrillicToTranslit = require("cyrillic-to-translit-js")
 const cyrillicToTranslit = new CyrillicToTranslit()
 
-const uploadFile = (file, type, maxSize) => {
+const uploadFileLocal = (file, type, maxSize) => {
 	let regex = /image\//
 	if (type === "video") {
 		regex = /video\//
@@ -100,4 +100,4 @@ async function uploadToCloud(file, type) {
 	}
 }
 
-module.exports = { uploadFile, uploadFileToCloud }
+module.exports = { uploadFileLocal, uploadFileToCloud }

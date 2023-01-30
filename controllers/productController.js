@@ -5,7 +5,7 @@ const {
 	ForbiddenError,
 	BadRequestError,
 } = require("../errors/customError")
-const { uploadFile, uploadFileToCloud } = require("../utils/uploadFile")
+const { uploadFileToCloud } = require("../utils/uploadFile")
 const { Statistics } = require("../models/StatisticsModel")
 
 const getAllProducts = async (req, res) => {
