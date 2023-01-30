@@ -19,6 +19,7 @@ const { reviewRouter } = require("./routers/reviewRouter")
 const { orderRouter } = require("./routers/orderRouter")
 const { bookmarkRouter } = require("./routers/bookmarkRouter")
 const { statisticsRouter } = require("./routers/statisticsRouter")
+const { adsRouter } = require("./routers/adsRouter")
 const app = express()
 
 const port = process.env.PORT || 3000
@@ -57,6 +58,7 @@ app.use("/api/v1/reviews", authMiddleware(), reviewRouter)
 app.use("/api/v1/orders", authMiddleware(), orderRouter)
 app.use("/api/v1/bookmarks", authMiddleware(), bookmarkRouter)
 app.use("/api/v1/statistics", authMiddleware(), statisticsRouter)
+app.use("/api/v1/ads", adsRouter)
 
 app.use(notFoundMiddleware)
 app.use(errorHandlerMiddleware)
