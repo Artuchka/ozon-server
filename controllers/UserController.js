@@ -59,6 +59,7 @@ const updateUser = async (req, res) => {
 		"birthday",
 		"location",
 		"email",
+		"avatar",
 	]
 
 	Object.keys(req.body).forEach((key) => {

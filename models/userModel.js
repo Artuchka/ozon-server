@@ -69,7 +69,8 @@ const UserSchema = new mongoose.Schema(
 		avatar: {
 			type: String,
 			required: true,
-			default: "/uploads/defaultAvatar.svg",
+			default:
+				"https://res.cloudinary.com/dzy8xh83i/image/upload/v1675242725/OZON_DEFAULT/defaultAvatar_m1pcjd.png",
 		},
 		location: {
 			type: String,
