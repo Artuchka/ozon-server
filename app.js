@@ -20,6 +20,7 @@ const { orderRouter } = require("./routers/orderRouter")
 const { bookmarkRouter } = require("./routers/bookmarkRouter")
 const { statisticsRouter } = require("./routers/statisticsRouter")
 const { adsRouter } = require("./routers/adsRouter")
+const { populateDB } = require("./utils/DBPopulator")
 const app = express()
 
 const port = process.env.PORT || 3000
@@ -73,6 +74,7 @@ const start = async () => {
 		app.listen(port, () => {
 			console.log(`app is listening on port=${port}`)
 		})
+		// populateDB()
 	} catch (error) {
 		console.log(error)
 	}
