@@ -1,7 +1,7 @@
 const { Products } = require("../models/productModel")
 const { populateDetails } = require("./populateDetails")
 
-const vendorID = "63d7f9fa780f2eefbe5f87d8"
+const vendorID = "63da5aeb225b9753f64b3910"
 async function populateSingle(details) {
 	console.log("creating product")
 	const product = await Products.create({
