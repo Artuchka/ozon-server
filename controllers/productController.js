@@ -336,4 +336,5 @@ module.exports = {
 	uploadVideo,
 	getMyProducts,
 	getProductsDetails,
+	adminId,
 }

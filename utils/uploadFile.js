@@ -45,7 +45,6 @@ const uploadFileLocal = (file, type, maxSize) => {
 
 const cloudinary = require("cloudinary").v2
 const streamifier = require("streamifier")
-const { log } = require("console")
 cloudinary.config({
 	secure: true,
 	cloud_name: process.env.CLOUDINARY_CLOUD_NAME,

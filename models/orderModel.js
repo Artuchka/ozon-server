@@ -113,6 +113,9 @@ const OrderSchema = new mongoose.Schema(
 		paidAt: {
 			type: Date,
 		},
+		refundedAt: {
+			type: Date,
+		},
 	},
 	{ timestamps: true }
 )

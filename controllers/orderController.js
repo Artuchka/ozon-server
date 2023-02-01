@@ -11,6 +11,8 @@ const {
 	getStreetByCoordinates,
 	getAddressByCoordinates,
 } = require("../utils/location")
+const { adminId } = require("./productController")
+const { Statistics } = require("../models/StatisticsModel")
 
 // This is your test secret API key.
 const stripe = require("stripe")(
@@ -197,7 +199,18 @@ const updateOrder = async (req, res, next) => {
 	}
 
 	if (req.body.status === "paid") {
-		order.paidAt = Date.now()
+		const nowDate = Date.now()
+		order.paidAt = nowDate
+		order.items.forEach(async (item) => {
+			const productId = item.product
+			const newAction = { date: nowDate, user: userId ? userId : adminId }
+			const newActions = Array(item.amount).fill(newAction)
+			await Statistics.updateOne(
+				{ product: productId },
+				{ $push: { bought: { $each: newActions } } },
+				{ upsert: true }
+			)
+		})
 	}
 
 	const { countedSubtotal, countedTotal } = await getCartDetails(order, next)
@@ -430,6 +443,7 @@ const createPaymentIntent = async (req, res, next) => {
 }
 
 const refundOrder = async (req, res) => {
+	const { userId } = req.user
 	const { orderId } = req.body
 
 	const order = await Orders.findOne({
@@ -461,6 +475,19 @@ const refundOrder = async (req, res) => {
 	if (refund?.status === "succeeded") {
 		order.refundId = refund.id
 		order.status = "refunded"
+
+		const nowDate = Date.now()
+		order.refundedAt = nowDate
+		order.items.forEach(async (item) => {
+			const productId = item.product
+			const newAction = { date: nowDate, user: userId ? userId : adminId }
+			const newActions = Array(item.amount).fill(newAction)
+			await Statistics.updateOne(
+				{ product: productId },
+				{ $push: { refunded: { $each: newActions } } },
+				{ upsert: true }
+			)
+		})
 	}
 	console.log(refund)
 	await order.save()

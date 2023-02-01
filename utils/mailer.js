@@ -10,8 +10,8 @@ const frontURL = process.env.FRONT_URL
 
 const sendEmail = ({ emailTo, token }) => {
 	console.log(`sending to ${emailTo} with token=${token}`)
-	// sendGridEmail({ emailTo, token })
-	sendInBlueEmail({ emailTo, token })
+	sendGridEmail({ emailTo, token })
+	// sendInBlueEmail({ emailTo, token })
 }
 
 module.exports = { sendEmail }
@@ -57,8 +57,9 @@ function sendGridEmail({ emailTo, token }) {
 	}
 	sgMail
 		.send(msg)
-		.then(() => {
+		.then((data) => {
 			console.log("Email sent")
+			console.log({ data })
 		})
 		.catch((error) => {
 			console.error(error)
@@ -92,9 +93,5 @@ async function sendinBlueSMTP() {
 
 	console.log("Message sent: %s", info.messageId)
 	// Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
-
-	// Preview only available when sending through an Ethereal account
-	console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info))
-	// Preview URL: https://ethereal.email/message/WaQKMgKddxQDoou...}
 }
 // sendinBlueSMTP().catch(console.error)
