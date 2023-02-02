@@ -28,7 +28,7 @@ const getAllMyStatistics = async (req, res) => {
 	const productsTotals = getMyProductTotals(userProducts)
 
 	res.status(StatusCodes.OK).json({
-		msg: "all my statistics",
+		msg: "📈Общая статистика!📉",
 		stats,
 		productsTotals,
 	})
@@ -82,7 +82,7 @@ const getMySingleStatistics = async (req, res) => {
 	})
 
 	if (!stat) {
-		throw new NotFoundError(`No stats for product with id = ${productId}`)
+		throw new NotFoundError(`Нет статистики по товару с id ${productId}`)
 	}
 
 	checkPermission(req.user, stat?.product?.vendor._id)
@@ -90,7 +90,7 @@ const getMySingleStatistics = async (req, res) => {
 	// console.log({ stats })
 
 	res.status(StatusCodes.OK).json({
-		msg: "single statistics",
+		msg: "📈Статистика по товару📉",
 		stat,
 	})
 }

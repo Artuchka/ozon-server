@@ -42,7 +42,7 @@ const getMyOrders = async (req, res) => {
 	const details = getMyOrdersDetails(orders)
 
 	res.status(StatusCodes.OK).json({
-		msg: "all my orders",
+		msg: "Все мои заказы",
 		orders,
 		details,
 	})
@@ -76,13 +76,13 @@ const getSingleByPaymentSecret = async (req, res) => {
 
 		if (!order) {
 			throw new NotFoundError(
-				`there is no order with clientSecret=${paymentSecret}`
+				`Нет заказа с clientSecret ${paymentSecret}`
 			)
 		}
 		checkPermission(req.user, order.user)
 
 		res.status(StatusCodes.OK).json({
-			msg: "by payment secret",
+			msg: `Заказ c ${paymentSecret}`,
 			order,
 		})
 	} catch (error) {
@@ -112,12 +112,12 @@ const getSingleByOrderId = async (req, res) => {
 		const street = await getAddressByCoordinates(order.deliveryCoordinates)
 
 		if (!order) {
-			throw new NotFoundError(`there is no order with _id=${orderId}`)
+			throw new NotFoundError(`Нет заказа с id=${orderId}`)
 		}
 		checkPermission(req.user, order.user._id)
 
 		res.status(StatusCodes.OK).json({
-			msg: "get single by orderId",
+			msg: `Заказ ${orderId}`,
 			order,
 			address: {
 				street: street,
@@ -134,9 +134,8 @@ const createOrder = async (req, res) => {
 	const { userId } = req.user
 
 	if (!status) {
-		throw new BadRequestError(`please provide a status`)
+		throw new BadRequestError(`Пожалуйста, предоставьте поле status`)
 	}
-	console.log("user is ", req.user)
 	if (status === "cart") {
 		const foundOrder = await Orders.findOne({
 			status: "cart",
@@ -144,7 +143,7 @@ const createOrder = async (req, res) => {
 		})
 		if (foundOrder) {
 			throw new BadRequestError(
-				`there already is CART order for user with id=${userId}`
+				`Уже есть корзина для пользователя с id=${userId}`
 			)
 		}
 	}
@@ -153,21 +152,13 @@ const createOrder = async (req, res) => {
 		user: userId,
 	})
 
-	// subtotal:
-	// shippingFee:
-	// discounts:
-	// total:
-	// user:
-	// status:
-
 	res.status(StatusCodes.CREATED).json({
-		msg: "create",
+		msg: `Создал корзину для пользователя с id=${userId}`,
 		order,
 	})
 }
 
 const updateOrder = async (req, res, next) => {
-	// try {
 	const { userId } = req.user
 	const { orderId } = req.params
 
@@ -176,7 +167,7 @@ const updateOrder = async (req, res, next) => {
 
 	const order = await Orders.findOne({ _id: orderId })
 	if (!order) {
-		throw new NotFoundError(`there is no order with id=${orderId}`)
+		throw new NotFoundError(`Нет заказа с id=${orderId}`)
 	}
 
 	const allowed = [
@@ -190,7 +181,7 @@ const updateOrder = async (req, res, next) => {
 
 	for (const key in req.body) {
 		if (!allowed.includes(key)) {
-			throw new ForbiddenError(`not allowed to update ${key} field`)
+			throw new ForbiddenError(`Нельзя изменять поле \`${key}\``)
 		}
 		if (key === "discounts") {
 			checkDiscounts(req.body[key])
@@ -224,12 +215,9 @@ const updateOrder = async (req, res, next) => {
 	})
 
 	res.status(StatusCodes.OK).json({
-		msg: "update",
+		msg: `Обновлен заказ с id ${orderId}`,
 		order,
 	})
-	// } catch (error) {
-	// 	console.log(error)
-	// }
 }
 
 function checkDiscounts(newDiscounts) {
@@ -254,14 +242,14 @@ const addToCart = async (req, res) => {
 		_id: orderId,
 	})
 	if (!order) {
-		throw new NotFoundError(`there is no order with id=${orderId}`)
+		throw new NotFoundError(`Нет заказа с id=${orderId}`)
 	}
 
 	let copyItems = [...order.items]
 
 	if (Array.isArray(items)) {
 		items.forEach(({ amount, product }) => {
-			console.log("adding", { amount, product })
+			// console.log("adding", { amount, product })
 			copyItems = updateSingle(copyItems, amount, product._id)
 		})
 	} else {
@@ -284,7 +272,7 @@ const addToCart = async (req, res) => {
 		select: "title price description images",
 	})
 
-	res.status(StatusCodes.OK).json({ msg: "added to cart", order })
+	res.status(StatusCodes.OK).json({ msg: "Корзина обновлена!", order })
 }
 
 function updateSingle(copyItems, amount, productId) {
@@ -317,7 +305,7 @@ const getCartDetails = async ({ items, shippingFee, discounts }) => {
 			const foundItem = await Products.findOne({ _id: item.product })
 
 			if (!foundItem) {
-				throw new NotFoundError(`no such item with id ${item.product}`)
+				throw new NotFoundError(`Нет товара с id ${item.product}`)
 			}
 			const prev = await agg
 			return {
@@ -355,9 +343,6 @@ const getCartDetails = async ({ items, shippingFee, discounts }) => {
 		amountTotal,
 		itemsLength,
 	}
-	// } catch (error) {
-	// 	console.log(error)
-	// }
 }
 
 const deleteOrder = async (req, res) => {
@@ -366,23 +351,23 @@ const deleteOrder = async (req, res) => {
 	if (orderId) {
 		const order = await Orders.findOne({ _id: orderId })
 		if (!order) {
-			throw new NotFoundError(`there is no order(${orderId}) `)
+			throw new NotFoundError(`Нет заказа с id ${orderId}`)
 		}
 		await order.remove()
 		res.status(StatusCodes.OK).json({
-			msg: "deleted",
+			msg: `Удалили заказ ${orderId}`,
 			order,
 		})
 	}
 
 	const order = await Orders.findOne({ user: userId })
 	if (!order) {
-		throw new NotFoundError(`there is no order for user with id=${userId}`)
+		throw new NotFoundError(`Нет заказа для пользователя с id=${userId}`)
 	}
 
 	await order.remove()
 	res.status(StatusCodes.OK).json({
-		msg: "deleted",
+		msg: `Удалили заказ ${order._id} для пользователя с id ${userId}`,
 		order,
 	})
 }
@@ -400,11 +385,11 @@ const getCurrentUserCart = async (req, res) => {
 
 	if (!order) {
 		throw new NotFoundError(
-			`there is no \`cart\` order for user with id=${userId}`
+			`Нет \`корзины\` для пользователя с id=${userId}`
 		)
 	}
 	res.status(StatusCodes.OK).json({
-		msg: "current",
+		msg: "Нынешная",
 		order,
 	})
 }
@@ -420,7 +405,7 @@ const createPaymentIntent = async (req, res, next) => {
 		})
 		console.log({ founddd: order })
 		if (!order) {
-			return new NotFoundError(`there is no order with id=${orderId}`)
+			return new NotFoundError(`Нет заказа с id=${orderId}`)
 		}
 		const paymentIntent = await stripe.paymentIntents.create({
 			amount: order.total * 100,
@@ -434,8 +419,8 @@ const createPaymentIntent = async (req, res, next) => {
 		await order.save()
 
 		res.status(StatusCodes.CREATED).json({
+			msg: "Обновлен client secret",
 			order,
-			msg: "client secret updated",
 		})
 	} catch (error) {
 		console.log(error)
@@ -463,7 +448,7 @@ const refundOrder = async (req, res) => {
 		})
 
 	if (!order) {
-		return new NotFoundError(`there is no order with id=${orderId}`)
+		return new NotFoundError(`Нет заказа с id=${orderId}`)
 	}
 
 	const payment_intent = order.clientSecret.split("_secret_")[0]
@@ -493,7 +478,7 @@ const refundOrder = async (req, res) => {
 	await order.save()
 
 	res.status(StatusCodes.OK).json({
-		msg: "refunded",
+		msg: "Заказ возвращен",
 		order,
 	})
 }

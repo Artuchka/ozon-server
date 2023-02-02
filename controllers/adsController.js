@@ -7,7 +7,7 @@ const getAds = async (req, res) => {
 	const ads = generateAds(adsConfig)
 
 	res.status(StatusCodes.OK).json({
-		msg: "here are u ads",
+		msg: "Реклама",
 		ads,
 	})
 }

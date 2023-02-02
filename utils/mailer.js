@@ -10,7 +10,7 @@ const frontURL = process.env.FRONT_URL
 
 const sendEmail = ({ emailTo, token }) => {
 	console.log(`sending to ${emailTo} with token=${token}`)
-	sendGridEmail({ emailTo, token })
+	// sendGridEmail({ emailTo, token })
 	// sendInBlueEmail({ emailTo, token })
 }
 
@@ -95,3 +95,4 @@ async function sendinBlueSMTP() {
 	// Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
 }
 // sendinBlueSMTP().catch(console.error)
+// sendInBlueEmail({ emailTo: "artuchkaa@gmail.com", token: "123" })

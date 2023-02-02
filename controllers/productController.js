@@ -101,7 +101,7 @@ const getAllProducts = async (req, res) => {
 	}
 
 	res.status(StatusCodes.OK).json({
-		msg: "all products",
+		msg: "Филтрованные товары🤞",
 		products: pagesProducts,
 		details,
 	})
@@ -142,9 +142,8 @@ const getProductsDetails = async (req, res) => {
 		categories: Array.from(categories),
 	}
 
-	console.log("GETTING DETAILS FOR PRODUCTSSS")
 	res.status(StatusCodes.OK).json({
-		msg: "details",
+		msg: "Детализация товаров рассчитана!🤞",
 		details,
 	})
 }
@@ -158,7 +157,7 @@ const getMyProducts = async (req, res) => {
 	}).sort(sortParam)
 
 	res.status(StatusCodes.OK).json({
-		msg: "all products",
+		msg: "Ваши товары!",
 		products,
 	})
 }
@@ -190,10 +189,10 @@ const getSingleProduct = async (req, res) => {
 			select: "email username avatar",
 		})
 	if (!product) {
-		throw new NotFoundError(`no product with id = ${id}`)
+		throw new NotFoundError(`Нет товара с id ${id}`)
 	}
 	res.status(StatusCodes.OK).json({
-		msg: "getSingleProduct",
+		msg: "Товар получен!",
 		product,
 	})
 }
@@ -210,7 +209,7 @@ const createProduct = async (req, res) => {
 	})
 
 	res.status(StatusCodes.OK).json({
-		msg: "create product",
+		msg: "Товар создан!",
 		product,
 	})
 }
@@ -220,7 +219,7 @@ const updateProduct = async (req, res) => {
 
 	const product = await Products.findOne({ _id: id })
 	if (!product) {
-		throw new NotFoundError(`no product with id = ${id}`)
+		throw new NotFoundError(`Нет товара с id ${id}`)
 	}
 
 	const allowed = [
@@ -242,15 +241,15 @@ const updateProduct = async (req, res) => {
 	Object.keys(req.body).forEach((key) => {
 		if (!allowed.includes(key)) {
 			throw new ForbiddenError(
-				`it's forbidden to update \`${key}\` value`
+				`😡Запрещенно обновлять поле \`${key}\` у товара😡`
 			)
 		}
 		product[key] = req.body[key]
 	})
 	await product.save()
-	console.log("saved")
+
 	res.status(StatusCodes.OK).json({
-		msg: "updateProduct product",
+		msg: "Товар обновлен!",
 		product,
 	})
 }
@@ -261,13 +260,13 @@ const deleteProduct = async (req, res) => {
 		"title description price"
 	)
 	if (!product) {
-		throw new NotFoundError(`no product with id = ${id}`)
+		throw new NotFoundError(`Нет товара с id ${id}`)
 	}
 
 	await product.remove()
 
 	res.status(StatusCodes.OK).json({
-		msg: "deleteProduct product",
+		msg: "➖Товар удален!➖",
 		product,
 	})
 }
@@ -279,7 +278,7 @@ const uploadImage = async (req, res) => {
 		images = [images]
 	}
 	if (!images || images?.length < 1) {
-		throw new BadRequestError(`please provide image/images`)
+		throw new BadRequestError(`Пожалуйста, предоставьте фото`)
 	}
 	console.log({ images })
 	const uploadImagesInfo = await Promise.allSettled(
@@ -293,7 +292,7 @@ const uploadImage = async (req, res) => {
 	})
 
 	res.status(StatusCodes.OK).json({
-		msg: `${images.length} images uploaded`,
+		msg: `${images.length} фото загружено🤞`,
 		paths: uploadPaths,
 	})
 }
@@ -307,7 +306,7 @@ const uploadVideo = async (req, res) => {
 		videos = [videos]
 	}
 	if (!videos || videos.length < 1) {
-		throw new BadRequestError(`please provide video`)
+		throw new BadRequestError(`Пожалуйста, предоставьте видео`)
 	}
 
 	const uploadVideosInfo = await Promise.allSettled(
@@ -321,7 +320,7 @@ const uploadVideo = async (req, res) => {
 	})
 
 	res.status(StatusCodes.OK).json({
-		msg: `${videos.length} videos uploaded`,
+		msg: `${videos.length} видео загружено🤞`,
 		paths: uploadPaths,
 	})
 }

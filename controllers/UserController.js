@@ -13,7 +13,7 @@ const getAllUsers = async (req, res) => {
 	const users = await Users.find()
 
 	res.status(StatusCodes.OK).json({
-		msg: "get all",
+		msg: "Все пользователи!",
 		users,
 	})
 }
@@ -22,10 +22,10 @@ const getSingleUser = async (req, res) => {
 	const { id } = req.params
 	const foundUser = await Users.findOne({ _id: id }).select("-password")
 	if (!foundUser) {
-		throw new NotFoundError(`no user with id=${id}`)
+		throw new NotFoundError(`Нет юзера с id=${id}`)
 	}
 	res.status(StatusCodes.OK).json({
-		msg: "get single",
+		msg: "Отдельный юзер!",
 		user: foundUser,
 	})
 }
@@ -34,10 +34,10 @@ const getCurrentUser = async (req, res) => {
 	const { userId } = req.user
 	const foundUser = await Users.findOne({ _id: userId }).select("-password")
 	if (!foundUser) {
-		throw new NotFoundError(`no user with id=${id}`)
+		throw new NotFoundError(`Нет юзера с id ${id}`)
 	}
 	res.status(StatusCodes.OK).json({
-		msg: "get getCurrentUser",
+		msg: "Текущий пользователь!",
 		user: foundUser,
 	})
 }
@@ -46,7 +46,7 @@ const updateUser = async (req, res) => {
 	const { userId: id } = req.user
 	const foundUser = await Users.findOne({ _id: id })
 	if (!foundUser) {
-		throw new NotFoundError(`no user with id=${id}`)
+		throw new NotFoundError(`Нет юзера с id ${id}`)
 	}
 	checkPermission(req.user, id)
 
@@ -67,21 +67,21 @@ const updateUser = async (req, res) => {
 			foundUser[key] = req.body[key]
 		} else {
 			throw new ForbiddenError(
-				`it's forbidden to update \`${key}\` value`
+				`😡Запрещенно обновлять поле \`${key}\` у пользователя😡`
 			)
 		}
 	})
 	await foundUser.save()
 
 	res.status(StatusCodes.OK).json({
-		msg: "updateUser",
+		msg: "Обновили данные!",
 		user: foundUser,
 	})
 }
 
 const updateUserPassword = async (req, res) => {
 	res.status(StatusCodes.OK).json({
-		msg: "updateUserPassword",
+		msg: "Обновили пароль!",
 	})
 }
 
@@ -91,11 +91,11 @@ const deleteUser = async (req, res) => {
 
 	const deletedUser = await Users.findOneAndDelete({ _id: id })
 	if (!deletedUser) {
-		throw new NotFoundError(`no user with id=${id}`)
+		throw new NotFoundError(`Нет юзера с id ${id}`)
 	}
 
 	res.status(StatusCodes.OK).json({
-		msg: "deleteUser",
+		msg: "➖Удалили пользователя!➖",
 		user: deletedUser,
 	})
 }
@@ -104,19 +104,17 @@ const becomeVendor = async (req, res) => {
 	const { userId } = req.user
 	const foundUser = await Users.findOne({ _id: userId })
 	if (!foundUser) {
-		throw new NotFoundError(`no user with id=${userId}`)
+		throw new NotFoundError(`Нет юзера с id ${userId}`)
 	}
 	if (foundUser.role === "vendor") {
-		throw new BadRequestError(
-			`user with id=${userId} is already a \`vendor\``
-		)
+		throw new BadRequestError(`Юзер с id ${userId} уже 💸продавец💸`)
 	}
 
 	foundUser.role = "vendor"
 	await foundUser.save()
 
 	res.status(StatusCodes.OK).json({
-		msg: "congrats! you are vendor now",
+		msg: "Поздравляем! Вы теперь 💸продавец💸",
 		user: foundUser,
 	})
 }

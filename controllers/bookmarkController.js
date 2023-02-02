@@ -2,6 +2,7 @@ const { StatusCodes } = require("http-status-codes")
 const { Bookmarks } = require("../models/bookmarkModel")
 const { default: mongoose } = require("mongoose")
 const { Statistics } = require("../models/StatisticsModel")
+const { adminId } = require("./productController")
 
 const getAllBookmarks = async (req, res) => {
 	const { userId } = req.user
@@ -18,7 +19,7 @@ const getAllBookmarks = async (req, res) => {
 	})
 
 	res.status(StatusCodes.OK).json({
-		msg: "all bookmarks",
+		msg: "Все закладки",
 		bookmarks,
 	})
 }
@@ -39,7 +40,7 @@ const addBookmark = async (req, res) => {
 	)
 
 	res.status(StatusCodes.OK).json({
-		msg: "Теперь, я в закладках =)",
+		msg: "Ура, я избранный =)",
 		bookmark,
 	})
 }
@@ -60,7 +61,7 @@ const deleteBookmark = async (req, res) => {
 	)
 
 	res.status(StatusCodes.OK).json({
-		msg: "deleteBookmark ",
+		msg: "Эх, я больше не избранный =(",
 		bookmark,
 	})
 }

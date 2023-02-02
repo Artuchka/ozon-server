@@ -10,23 +10,25 @@ const login = async (req, res) => {
 	const { email, password } = req.body
 
 	if (!email || !password) {
-		throw new BadRequestError("please provide email and password")
+		throw new BadRequestError("Пожалуйста предоставьте почту и пароль")
 	}
 
 	const foundUser = await Users.findOne({ email })
 	if (!foundUser) {
-		throw new NotFoundError(`no user with email = ${email}`)
+		throw new NotFoundError(
+			`Пользователь с почтой ${email} не зарегестрирован`
+		)
 	}
 
 	const isValidPassword = await foundUser.comparePassword(password)
 	if (!isValidPassword) {
-		throw new BadRequestError(`invalid credentials`)
+		throw new BadRequestError(`Неверные данные`)
 	}
 
 	const token = createUserToken({ user: foundUser })
 	attachCookies({ res, token })
 	res.status(StatusCodes.OK).json({
-		msg: "welcome back",
+		msg: "Давно не виделись :D",
 		user: foundUser,
 	})
 }
@@ -35,14 +37,14 @@ const loginJWT = async (req, res) => {
 
 	const foundUser = await Users.findOne({ _id: id })
 	if (!foundUser) {
-		throw new NotFoundError(`no user with id = ${id}`)
+		throw new NotFoundError(`Нет пользователя с id = ${id}`)
 	}
 
 	const token = createUserToken({ user: foundUser })
 	attachCookies({ res, token })
 
 	res.status(StatusCodes.OK).json({
-		msg: "welcome back",
+		msg: "Давно не виделись :D",
 		user: foundUser,
 	})
 }
@@ -57,7 +59,7 @@ const register = async (req, res) => {
 	})
 
 	res.status(StatusCodes.OK).json({
-		msg: "registered!",
+		msg: `Зарегистрировали ${email}`,
 		createdUser,
 		cartForUser,
 	})
@@ -68,7 +70,7 @@ const loginPasswordless = async (req, res) => {
 
 	const foundUser = await Users.findOne({ email })
 	if (!foundUser) {
-		throw new NotFoundError(`No user with email ${email}`)
+		throw new NotFoundError(`Нет пользователя с почтой ${email}`)
 	}
 	const verifyToken = createUserToken({
 		user: foundUser,
@@ -81,7 +83,7 @@ const loginPasswordless = async (req, res) => {
 	sendEmail({ emailTo: email, token: verifyToken })
 
 	res.status(StatusCodes.OK).json({
-		msg: `Проверьте вашу почту (${email})!`,
+		msg: `Проверьте вашу почту (${email})! Мы отправили письмо =)`,
 	})
 }
 const registerPasswordless = async (req, res) => {
@@ -104,7 +106,7 @@ const registerPasswordless = async (req, res) => {
 	sendEmail({ emailTo: email, token: verifyToken })
 
 	res.status(StatusCodes.OK).json({
-		msg: `Проверьте вашу почту (${email})!`,
+		msg: `Проверьте вашу почту (${email})! Мы отправили письмо =)`,
 	})
 }
 const verifyPasswordless = async (req, res) => {
@@ -112,12 +114,12 @@ const verifyPasswordless = async (req, res) => {
 
 	const user = await Users.findOne({ verifyToken: token })
 	if (!user) {
-		throw new NotFoundError(`no such user with token=${token}`)
+		throw new NotFoundError(`Нет пользователя с токеном = ${token}`)
 	}
 
 	const decoded = verifyToken(token)
 	if (decoded.userId !== user._id.toString()) {
-		throw new BadRequestError(`bad token recieved`)
+		throw new BadRequestError(`У Вас плохие 🍪кукисы🍪...`)
 	}
 
 	user.isVerifiedEmail = true
@@ -132,7 +134,7 @@ const verifyPasswordless = async (req, res) => {
 	attachCookies({ res, token })
 
 	res.status(StatusCodes.OK).json({
-		msg: "Вход подтвержден!",
+		msg: "Давно не виделись :D",
 		user,
 		cartForUser,
 	})

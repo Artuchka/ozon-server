@@ -58,11 +58,11 @@ const uploadFileToCloud = async (file, type, maxSize) => {
 		regex = /video\//
 	}
 	if (!file?.mimetype?.match(regex)) {
-		throw new BadRequestError(`please provide ${type} only`)
+		throw new BadRequestError(`Пожалуйста предоставьте файлы типа ${type}`)
 	}
 	if (file?.size > maxSize) {
 		throw new BadRequestError(
-			`the image is too big, send only up to ${
+			`Файл слишком большой, отправляйте до ${
 				maxSize / 1024 / 1024
 			} MB = ${maxSize} bytes`
 		)

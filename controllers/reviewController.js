@@ -8,7 +8,7 @@ const getAllReviews = async (req, res) => {
 		select: "email",
 	})
 	res.status(StatusCodes.OK).json({
-		msg: "all reviews",
+		msg: "Все отзывы!",
 		amount: reviews.length,
 		reviews,
 	})
@@ -27,7 +27,7 @@ const getMyReviews = async (req, res) => {
 		},
 	})
 	res.status(StatusCodes.OK).json({
-		msg: "all reviews",
+		msg: "Все ваши отзывы!",
 		amount: reviews.length,
 		reviews,
 	})
@@ -47,18 +47,19 @@ const createReview = async (req, res) => {
 	console.log(review)
 
 	res.status(StatusCodes.CREATED).json({
-		msg: "Добавили ваше мнение!",
+		msg: "Добавили ваше мнение!🤞",
 		review,
 	})
 }
+
 const getSingleReview = async (req, res) => {
 	const { id } = req.params
 	const review = await Reviews.findOne({ _id: id })
 	if (!review) {
-		throw new NotFoundError(`no review with id=${id}`)
+		throw new NotFoundError(`Нет отзыва с id ${id}`)
 	}
 	res.status(StatusCodes.OK).json({
-		msg: "single reviews",
+		msg: "Отзыв получен!",
 		review,
 	})
 }
@@ -71,7 +72,7 @@ const deleteSingleReview = async (req, res) => {
 
 	await review.remove()
 	res.status(StatusCodes.OK).json({
-		msg: "delete single reviews",
+		msg: "➖Отзыв удален!➖",
 		review,
 	})
 }
@@ -80,23 +81,21 @@ const updateSingleReview = async (req, res) => {
 	const { id } = req.params
 	const review = await Reviews.findOne({ _id: id })
 	if (!review) {
-		throw new NotFoundError(`no review with id=${id}`)
+		throw new NotFoundError(`Нет отзыва с id ${id}`)
 	}
 
 	const allowed = ["comment", "title", "rating", "images", "videos"]
 
 	Object.keys(req.body).forEach((key) => {
 		if (!allowed.includes(key)) {
-			throw new ForbiddenError(
-				`it's forbidden to update \`${key}\` value`
-			)
+			throw new ForbiddenError(`😡Запрещенно обновнять поле \`${key}\`😡`)
 		}
 		review[key] = req.body[key]
 	})
 
 	await review.save()
 	res.status(StatusCodes.OK).json({
-		msg: "updated single reviews",
+		msg: "Отзыв обновлен!",
 		review,
 	})
 }

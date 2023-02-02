@@ -6,7 +6,7 @@ const checkPermission = (reqUser, resUserId) => {
 		reqUser?.userId?.toString() !== resUserId?.toString()
 	)
 		throw new UnauthError(
-			`you are not allowed to access this route, ${reqUser?.userId} !== ${resUserId}`
+			`Вам нельзя на этот route, ${reqUser?.userId} !== ${resUserId}`
 		)
 }
 
