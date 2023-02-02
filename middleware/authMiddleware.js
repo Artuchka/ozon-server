@@ -1,4 +1,5 @@
 const { verifyToken } = require("../utils/jwt")
+const { UnauthError } = require("../errors/customError")
 
 const authMiddleware = ({ isOptional } = { isOptional: false }) => {
 	return async (req, res, next) => {
@@ -7,6 +8,9 @@ const authMiddleware = ({ isOptional } = { isOptional: false }) => {
 		try {
 			const { token } = req.cookies
 
+			if (!token) {
+				throw new UnauthError(`Залогинься, друг!`)
+			}
 			const decoded = verifyToken(token)
 
 			// console.log({ decoded })
