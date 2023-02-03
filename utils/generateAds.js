@@ -1,5 +1,6 @@
 const path = require("path")
 const fs = require("fs")
+const { adsSources } = require("./adsSources")
 
 const generateAds = ({
 	long = 1,
@@ -10,59 +11,49 @@ const generateAds = ({
 }) => {
 	const ads = { long: [], short: [], half: [], category: [], longTall: [] }
 
-	const baseAdsURL = "/uploads/image/ads"
+	const longFiles = adsSources["same-site"].long
+	const shortFiles = adsSources["same-site"].short
+	const categoryFiles = adsSources["same-site"].categories
+	const halfFiles = adsSources.outsource.half
+	const longTallFiles = adsSources.outsource["long-tall"]
 
-	const longBase = `${baseAdsURL}/SameSite/long/`
-	const longSrc = path.join(__dirname, "..", `public/${longBase}`)
-	const longFiles = fs.readdirSync(longSrc)
-
-	const shortBase = `${baseAdsURL}/SameSite/short/`
-	const shortSrc = path.join(__dirname, "..", `public/${shortBase}`)
-	const shortFiles = fs.readdirSync(shortSrc)
-
-	const categoryBase = `${baseAdsURL}/SameSite/categories/`
-	const categorySrc = path.join(__dirname, "..", `public/${categoryBase}`)
-	const categoryFiles = fs.readdirSync(categorySrc)
-
-	const halfBase = `${baseAdsURL}/outsource/half/`
-	const halfSrc = path.join(__dirname, "..", `public/${halfBase}`)
-	const halfFiles = fs.readdirSync(halfSrc)
-
-	const longTallBase = `${baseAdsURL}/outsource/long-tall/`
-	const longTallSrc = path.join(__dirname, "..", `public/${longTallBase}`)
-	const longTallFiles = fs.readdirSync(longTallSrc)
+	shuffle(longFiles)
+	shuffle(shortFiles)
+	shuffle(categoryFiles)
+	shuffle(halfFiles)
+	shuffle(longTallFiles)
 
 	for (let i = 0; i < long && longFiles.length > i; i++) {
-		const newAd = generateAd(longBase, longFiles[i])
+		const newAd = generateAd(longFiles[i])
 		ads.long.push(newAd)
 	}
 	for (let i = 0; i < short && shortFiles.length > i; i++) {
-		const newAd = generateAd(shortBase, shortFiles[i])
+		const newAd = generateAd(shortFiles[i])
 		ads.short.push(newAd)
 	}
 	for (let i = 0; i < half && halfFiles.length > i; i++) {
-		const newAd = generateAd(halfBase, halfFiles[i])
+		const newAd = generateAd(halfFiles[i])
 		ads.half.push(newAd)
 	}
 	for (let i = 0; i < category && categoryFiles.length > i; i++) {
-		const newAd = generateAd(categoryBase, categoryFiles[i])
+		const newAd = generateAd(categoryFiles[i])
 		ads.category.push(newAd)
 	}
 	for (let i = 0; i < longTall && longTallFiles.length > i; i++) {
-		const newAd = generateAd(longTallBase, longTallFiles[i])
+		const newAd = generateAd(longTallFiles[i])
 		ads.longTall.push(newAd)
 	}
 
-	shuffle(ads.long)
-	shuffle(ads.short)
-	shuffle(ads.category)
-	shuffle(ads.longTall)
-	shuffle(ads.half)
+	// shuffle(ads.long)
+	// shuffle(ads.short)
+	// shuffle(ads.category)
+	// shuffle(ads.longTall)
+	// shuffle(ads.half)
 	return ads
 }
 
-function generateAd(baseURL, filename) {
-	return { src: `${baseURL}${filename}`, url: "/products" }
+function generateAd(src, redirect = "/products") {
+	return { src, url: redirect }
 }
 function shuffle(array) {
 	let currentIndex = array.length
