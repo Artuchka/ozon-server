@@ -45,6 +45,8 @@ const uploadFileLocal = (file, type, maxSize) => {
 
 const cloudinary = require("cloudinary").v2
 const streamifier = require("streamifier")
+const { minifyImage } = require("./minifiyImage")
+const { BadRequestError } = require("../errors/customError")
 cloudinary.config({
 	secure: true,
 	cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -72,13 +74,18 @@ const uploadFileToCloud = async (file, type, maxSize) => {
 		.transform(file.name, "_")
 		.toLowerCase()
 
-	const result = await uploadToCloud(file, type)
-	console.log({ result })
+	const { minifiedBuffer, bytesSaved } = await minifyImage(file)
+	if (!minifiedBuffer) {
+		throw new BadRequestError(`Unable to minify`)
+	}
+	const image = await uploadToCloud(minifiedBuffer, type)
 
-	return result
+	console.log({ minifiedBuffer, bytesSaved })
+
+	return { image, bytesSaved }
 }
 
-async function uploadToCloud(file, type) {
+async function uploadToCloud(buffer, type) {
 	try {
 		return await new Promise((resolve, reject) => {
 			let stream = cloudinary.uploader.upload_stream(
@@ -92,7 +99,7 @@ async function uploadToCloud(file, type) {
 				}
 			)
 
-			streamifier.createReadStream(file.data).pipe(stream)
+			streamifier.createReadStream(buffer).pipe(stream)
 		})
 	} catch (error) {
 		console.log(error)

@@ -274,6 +274,7 @@ const deleteProduct = async (req, res) => {
 const uploadImage = async (req, res) => {
 	const maxSizeImage = 1024 * 1024 * 2
 	let images = req?.files?.images
+
 	if (images?.name && !images.length) {
 		images = [images]
 	}
@@ -281,18 +282,31 @@ const uploadImage = async (req, res) => {
 		throw new BadRequestError(`Пожалуйста, предоставьте фото`)
 	}
 	console.log({ images })
+	let initialBytesAmount = 0
 	const uploadImagesInfo = await Promise.allSettled(
 		images.map(async (img) => {
+			initialBytesAmount += img.size
 			return await uploadFileToCloud(img, "image", maxSizeImage)
 		})
 	)
 
-	const uploadPaths = uploadImagesInfo.map((item) => {
-		return item.value.secure_url
+	let allBytesSaved = 0
+	console.log({ uploadImagesInfo })
+	// console.log({ valueUpper: uploadImagesInfo?.[0]?.value })
+	const uploadPaths = uploadImagesInfo.map((promisedImage) => {
+		console.log(promisedImage)
+		const imageInfo = promisedImage.value
+		allBytesSaved += imageInfo.bytesSaved
+		return imageInfo.image.secure_url
 	})
 
+	const savedPercentage = (
+		(allBytesSaved / initialBytesAmount) *
+		100
+	).toFixed(2)
+
 	res.status(StatusCodes.OK).json({
-		msg: `${images.length} фото загружено🤞`,
+		msg: `${images.length} фото загружено, сжали на ${savedPercentage}% 🤞`,
 		paths: uploadPaths,
 	})
 }
