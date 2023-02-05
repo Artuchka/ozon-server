@@ -54,7 +54,7 @@ cloudinary.config({
 	api_secret: process.env.CLOUDINARY_CLOUD_API_SECRET,
 })
 
-const uploadFileToCloud = async (file, type, maxSize) => {
+const uploadToCloud = async (file, type, maxSize) => {
 	let regex = /image\//
 	if (type === "video") {
 		regex = /video\//
@@ -70,22 +70,34 @@ const uploadFileToCloud = async (file, type, maxSize) => {
 		)
 	}
 
-	const translatedName = cyrillicToTranslit
-		.transform(file.name, "_")
-		.toLowerCase()
+	// const translatedName = cyrillicToTranslit
+	// 	.transform(file.name, "_")
+	// 	.toLowerCase()
 
-	const { minifiedBuffer, bytesSaved } = await minifyImage(file)
-	if (!minifiedBuffer) {
-		throw new BadRequestError(`Unable to minify`)
+	if (type === "image") {
+		const { minifiedBuffer, bytesSaved } = await minifyImage(file)
+		if (!minifiedBuffer) {
+			throw new BadRequestError(`Unable to minify`)
+		}
+		const image = await uploadBufferToCloud(minifiedBuffer, type)
+		console.log({ minifiedBuffer, bytesSaved })
+		return { image, bytesSaved }
 	}
-	const image = await uploadToCloud(minifiedBuffer, type)
 
-	console.log({ minifiedBuffer, bytesSaved })
-
-	return { image, bytesSaved }
+	if (type === "video") {
+		const video = await uploadFileToCloud(file, type)
+		return { video, bytesSaved: 0 }
+	}
 }
 
-async function uploadToCloud(buffer, type) {
+function uploadBufferToCloud(buffer, type) {
+	return uploadToCloudController(buffer, type)
+}
+function uploadFileToCloud(file, type) {
+	return uploadToCloudController(file.data, type)
+}
+
+async function uploadToCloudController(buffer, type) {
 	try {
 		return await new Promise((resolve, reject) => {
 			let stream = cloudinary.uploader.upload_stream(
@@ -106,4 +118,4 @@ async function uploadToCloud(buffer, type) {
 	}
 }
 
-module.exports = { uploadFileLocal, uploadFileToCloud }
+module.exports = { uploadFileLocal, uploadToCloud }

@@ -5,7 +5,7 @@ const {
 	ForbiddenError,
 	BadRequestError,
 } = require("../errors/customError")
-const { uploadFileToCloud } = require("../utils/uploadFile")
+const { uploadToCloud } = require("../utils/uploadFile")
 const { Statistics } = require("../models/StatisticsModel")
 
 const getAllProducts = async (req, res) => {
@@ -286,7 +286,7 @@ const uploadImage = async (req, res) => {
 	const uploadImagesInfo = await Promise.allSettled(
 		images.map(async (img) => {
 			initialBytesAmount += img.size
-			return await uploadFileToCloud(img, "image", maxSizeImage)
+			return await uploadToCloud(img, "image", maxSizeImage)
 		})
 	)
 
@@ -325,12 +325,13 @@ const uploadVideo = async (req, res) => {
 
 	const uploadVideosInfo = await Promise.allSettled(
 		videos.map(async (img) => {
-			return await uploadFileToCloud(img, "video", maxSizeVideo)
+			return await uploadToCloud(img, "video", maxSizeVideo)
 		})
 	)
 
-	const uploadPaths = uploadVideosInfo.map((item) => {
-		return item.value.secure_url
+	const uploadPaths = uploadVideosInfo.map((promisedVideo) => {
+		const videoInfo = promisedVideo.value
+		return videoInfo.video.secure_url
 	})
 
 	res.status(StatusCodes.OK).json({
