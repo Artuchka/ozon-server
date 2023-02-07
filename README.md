@@ -41,18 +41,18 @@ File structure pattern is well known and common:
 - <route_name>Controller.js at /controllers folder for setting up controllers of specified route 
 - <route_name>Model.js at /models folder for setting up MongoDB schema
 
-Cloudinary is used for storing uploaded images and videos. Chose to use it because it has more servers than I do on :D  (leading to faster content delivery)
+```Cloudinary``` is used for storing uploaded images and videos. Chose to use it because it has more servers than I do on :D  (leading to faster content delivery)
 
-Imagemin is used for minifying images before uploading. Sometimes it can compress images by up to 70% 
+```Imagemin``` is used for minifying images before uploading. Sometimes it can compress images by up to 70% 
 
-bcryptjs is used for hashing passwords with salt before storing them in Database
+```bcryptjs``` is used for hashing passwords with salt before storing them in Database
 
-jsonwebtoken is used for creating\decoding crypted Tokens, safely containing info about current user. JWT are stored in cookies.
+```jsonwebtoken``` is used for creating\decoding crypted Tokens, safely containing info about current user. JWT are stored in cookies.
 
 I had to use ```node-fetch``` library to access Dadata API (map reverse geocoder), because it asks for ```mode: "cors"```
 in request config, which is not accesble in well-known Axios, which uses a XMLHttpRequest under the hood, not Request as fetch.
 
-Nodemailer is used for sending transactional Emails via SMTP server (from SendinBlue)
+```Nodemailer``` is used for sending transactional Emails via SMTP server (from SendinBlue)
 There are also used SendGrid and Sendinblue libraries for sending emails via API keys
 
 
