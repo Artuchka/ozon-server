@@ -65,68 +65,58 @@ function getMyOrdersDetails(orders) {
 }
 
 const getSingleByPaymentSecret = async (req, res) => {
-	try {
-		const { paymentSecret } = req.params
-		const order = await Orders.findOne({
-			clientSecret: paymentSecret,
-		}).populate({
-			path: "items.product",
-			select: "title price description images",
-		})
+	const { paymentSecret } = req.params
+	const order = await Orders.findOne({
+		clientSecret: paymentSecret,
+	}).populate({
+		path: "items.product",
+		select: "title price description images",
+	})
 
-		if (!order) {
-			throw new NotFoundError(
-				`Нет заказа с clientSecret ${paymentSecret}`
-			)
-		}
-		checkPermission(req.user, order.user)
-
-		res.status(StatusCodes.OK).json({
-			msg: `Заказ c ${paymentSecret}`,
-			order,
-		})
-	} catch (error) {
-		console.log(error)
+	if (!order) {
+		throw new NotFoundError(`Нет заказа с clientSecret ${paymentSecret}`)
 	}
+	checkPermission(req.user, order.user)
+
+	res.status(StatusCodes.OK).json({
+		msg: `Заказ c ${paymentSecret}`,
+		order,
+	})
 }
 
 const getSingleByOrderId = async (req, res) => {
-	try {
-		const { orderId } = req.params
+	const { orderId } = req.params
 
-		const order = await Orders.findOne({
-			_id: orderId,
-		})
-			.populate({
-				path: "items.product",
-				select: "title price description images ",
-				populate: {
-					path: "vendor",
-					select: "firstName lastName username ",
-				},
-			})
-			.populate({
-				path: "user",
-				select: "firstName lastName email phone",
-			})
-		const street = await getAddressByCoordinates(order.deliveryCoordinates)
-
-		if (!order) {
-			throw new NotFoundError(`Нет заказа с id=${orderId}`)
-		}
-		checkPermission(req.user, order.user._id)
-
-		res.status(StatusCodes.OK).json({
-			msg: `Заказ ${orderId}`,
-			order,
-			address: {
-				street: street,
-				isCustomAddress: order.isCustomCoordinates,
+	const order = await Orders.findOne({
+		_id: orderId,
+	})
+		.populate({
+			path: "items.product",
+			select: "title price description images ",
+			populate: {
+				path: "vendor",
+				select: "firstName lastName username ",
 			},
 		})
-	} catch (error) {
-		console.log(error)
+		.populate({
+			path: "user",
+			select: "firstName lastName email phone",
+		})
+	const street = await getAddressByCoordinates(order.deliveryCoordinates)
+
+	if (!order) {
+		throw new NotFoundError(`Нет заказа с id=${orderId}`)
 	}
+	checkPermission(req.user, order.user._id)
+
+	res.status(StatusCodes.OK).json({
+		msg: `Заказ ${orderId}`,
+		order,
+		address: {
+			street: street,
+			isCustomAddress: order.isCustomCoordinates,
+		},
+	})
 }
 
 const createOrder = async (req, res) => {
@@ -395,36 +385,32 @@ const getCurrentUserCart = async (req, res) => {
 }
 
 const createPaymentIntent = async (req, res, next) => {
-	try {
-		const { orderId } = req.body
+	const { orderId } = req.body
 
-		console.log("starting payment intent")
+	console.log("starting payment intent")
 
-		const order = await Orders.findOne({
-			_id: orderId,
-		})
-		console.log({ founddd: order })
-		if (!order) {
-			return new NotFoundError(`Нет заказа с id=${orderId}`)
-		}
-		const paymentIntent = await stripe.paymentIntents.create({
-			amount: order.total * 100,
-			currency: "usd",
-			automatic_payment_methods: {
-				enabled: true,
-			},
-		})
-
-		order.clientSecret = paymentIntent.client_secret
-		await order.save()
-
-		res.status(StatusCodes.CREATED).json({
-			msg: "Обновлен client secret",
-			order,
-		})
-	} catch (error) {
-		console.log(error)
+	const order = await Orders.findOne({
+		_id: orderId,
+	})
+	console.log({ founddd: order })
+	if (!order) {
+		return new NotFoundError(`Нет заказа с id=${orderId}`)
 	}
+	const paymentIntent = await stripe.paymentIntents.create({
+		amount: order.total * 100,
+		currency: "usd",
+		automatic_payment_methods: {
+			enabled: true,
+		},
+	})
+
+	order.clientSecret = paymentIntent.client_secret
+	await order.save()
+
+	res.status(StatusCodes.CREATED).json({
+		msg: "Обновлен client secret",
+		order,
+	})
 }
 
 const refundOrder = async (req, res) => {

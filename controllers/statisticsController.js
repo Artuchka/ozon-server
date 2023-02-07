@@ -87,8 +87,6 @@ const getMySingleStatistics = async (req, res) => {
 
 	checkPermission(req.user, stat?.product?.vendor._id)
 
-	// console.log({ stats })
-
 	res.status(StatusCodes.OK).json({
 		msg: "📈Статистика по товару📉",
 		stat,

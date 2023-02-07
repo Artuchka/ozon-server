@@ -278,6 +278,7 @@ const uploadImage = async (req, res) => {
 	if (images?.name && !images.length) {
 		images = [images]
 	}
+	console.log({ images })
 	if (!images || images?.length < 1) {
 		throw new BadRequestError(`Пожалуйста, предоставьте фото`)
 	}

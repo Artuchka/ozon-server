@@ -40,7 +40,9 @@
     "sib-api-v3-sdk": "^8.5.0",
     "streamifier": "^0.1.1",
     "stripe": "^11.6.0",
+    "swagger-ui-express": "^4.6.0",
     "validator": "^13.7.0",
-    "xss-clean": "^0.1.1"
+    "xss-clean": "^0.1.1",
+    "yamljs": "^0.3.0"
   }
 }

@@ -1,0 +1,1093 @@
+openapi: 3.0.0
+info:
+  title: ZOZO API
+  contact: {}
+  version: '1.0'
+servers:
+- url: https://busy-red-zebra-robe.cyclic.app/api/v1
+  variables: {}
+paths:
+  /ads:
+    post:
+      tags:
+      - Ads
+      summary: Get ads
+      operationId: Getads
+      parameters: []
+      requestBody:
+        description: ''
+        content:
+          application/json:
+            schema:
+              allOf:
+              - $ref: '#/components/schemas/GetadsRequest'
+              - example:
+                  adsConfig:
+                    long: 1
+                    short: 1
+                    half: 1
+                    category: 1
+                    longTall: 4
+            example:
+              adsConfig:
+                long: 1
+                short: 1
+                half: 1
+                category: 1
+                longTall: 4
+        required: true
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+      security: []
+  /auth/login:
+    post:
+      tags:
+      - Auth
+      summary: login
+      operationId: login
+      parameters: []
+      requestBody:
+        description: ''
+        content:
+          application/json:
+            schema:
+              allOf:
+              - $ref: '#/components/schemas/loginrequest'
+              - example:
+                  email: admin@gmail.com
+                  password: '123456'
+            example:
+              email: admin@gmail.com
+              password: '123456'
+        required: true
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+      security: []
+  /auth/loginJWT:
+    get:
+      tags:
+      - Auth
+      summary: login JWT
+      operationId: loginJWT
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+  /auth/register:
+    post:
+      tags:
+      - Auth
+      summary: register
+      operationId: register
+      parameters: []
+      requestBody:
+        description: ''
+        content:
+          application/json:
+            schema:
+              allOf:
+              - $ref: '#/components/schemas/registerrequest'
+              - example:
+                  email: newUser@gmail.com
+                  password: '123456'
+            example:
+              email: newUser@gmail.com
+              password: '123456'
+        required: true
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+      security: []
+  /auth/logout:
+    get:
+      tags:
+      - Auth
+      summary: logout
+      operationId: logout
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+  /users:
+    get:
+      tags:
+      - User
+      summary: get all users
+      operationId: getallusers
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+    patch:
+      tags:
+      - User
+      summary: update user
+      operationId: updateuser
+      parameters: []
+      requestBody:
+        description: ''
+        content:
+          application/json:
+            schema:
+              allOf:
+              - $ref: '#/components/schemas/updateuserrequest'
+              - example:
+                  gender: Attack Helicopter
+            example:
+              gender: Attack Helicopter
+        required: true
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+  /user/{id}:
+    parameters:
+      - in: path
+        name: userId
+        schema:
+          type: string
+        required: true
+        description: The user ID
+    get:
+      tags:
+      - User
+      summary: get single user
+      operationId: getsingleuser
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+    delete:
+      tags:
+      - User
+      summary: delete user
+      operationId: deleteuser
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+  /users/showMe:
+    get:
+      tags:
+      - User
+      summary: show me
+      operationId: showme
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+  /users/becomeVendor:
+    get:
+      tags:
+      - User
+      summary: become vendor
+      operationId: becomevendor
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+  /products:
+    get:
+      tags:
+      - Products
+      summary: get all products
+      operationId: getallproducts
+      parameters:
+      - name: title
+        in: query
+        description: ''
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: imagesAmount
+        in: query
+        description: ''
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: integer
+          format: int32
+          example: 4
+      - name: numericFilters
+        in: query
+        description: ''
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+          example: price>19,price<100000,numOfReviews>=1
+      - name: limit
+        in: query
+        description: ''
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: integer
+          format: int32
+          example: 3
+      - name: page
+        in: query
+        description: ''
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: integer
+          format: int32
+          example: 1
+      - name: sort
+        in: query
+        description: ''
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+          example: -price
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+    post:
+      tags:
+      - Products
+      summary: create product
+      operationId: createproduct
+      parameters: []
+      requestBody:
+        description: ''
+        content:
+          application/json:
+            schema:
+              allOf:
+              - $ref: '#/components/schemas/createproductrequest'
+              - example:
+                  description: lorem ipsum description
+                  title: '11111'
+                  price: 200
+            example:
+              description: lorem ipsum description
+              title: '11111'
+              price: 200
+        required: true
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+  /products/getDetails:
+    get:
+      tags:
+      - Products
+      summary: get details for found products
+      operationId: getdetailsforfoundproducts
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+      security: []
+  /products/uploadImage:
+    post:
+      tags:
+      - Products
+      summary: upload image
+      operationId: uploadimage
+      parameters: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            encoding: {}
+            schema:
+              required:
+              - images
+              type: object
+              properties:
+                images:
+                  type: string
+        required: false
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+  /products/uploadVideo:
+    post:
+      tags:
+      - Products
+      summary: upload videos
+      operationId: uploadvideos
+      parameters: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            encoding: {}
+            schema:
+              required:
+              - videos
+              type: object
+              properties:
+                videos:
+                  type: string
+        required: false
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+  /products/{productID}:
+    parameters:
+      - in: path
+        name: productID
+        schema:
+          type: string
+        required: true
+        description: The product ID
+    get:
+      tags:
+      - Products
+      summary: get single products
+      operationId: getsingleproducts
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+    patch:
+      tags:
+      - Products
+      summary: update product
+      operationId: updateproduct
+      parameters: []
+      requestBody:
+        description: ''
+        content:
+          application/json:
+            schema:
+              allOf:
+              - $ref: '#/components/schemas/updateproductrequest'
+              - example:
+                  description: new desc
+                  title: new title 2
+            example:
+              description: new desc
+              title: new title 2
+        required: true
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+    delete:
+      tags:
+      - Products
+      summary: delete product
+      operationId: deleteproduct
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+  /reviews:
+    get:
+      tags:
+      - Reviews
+      summary: get all reviews
+      operationId: getallreviews
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+    post:
+      tags:
+      - Reviews
+      summary: createReview
+      operationId: createReview
+      parameters: []
+      requestBody:
+        description: ''
+        content:
+          application/json:
+            schema:
+              allOf:
+              - $ref: '#/components/schemas/createReviewRequest'
+              - example:
+                  productId: 639dd9fd056d0377d436dd79
+                  rating: 1
+                  title: im title
+                  comment: im comment
+            example:
+              productId: 639dd9fd056d0377d436dd79
+              rating: 1
+              title: im title
+              comment: im comment
+        required: true
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+  /reviews/{reviewId}:
+    parameters:
+      - in: path
+        name: reviewID
+        schema:
+          type: string
+        required: true
+        description: The review ID
+    get:
+      tags:
+      - Reviews
+      summary: get single review
+      operationId: getsinglereview
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+    patch:
+      tags:
+      - Reviews
+      summary: update single review
+      operationId: updatesinglereview
+      parameters: []
+      requestBody:
+        description: ''
+        content:
+          application/json:
+            schema:
+              allOf:
+              - $ref: '#/components/schemas/updatesinglereviewrequest'
+              - example:
+                  rating: 4
+            example:
+              rating: 4
+        required: true
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+    delete:
+      tags:
+      - Reviews
+      summary: delete review
+      operationId: deletereview
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+  /orders/allOrders:
+    get:
+      tags:
+      - Orders
+      summary: get all orders
+      operationId: getallorders
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+  
+  /statistics/payment-secret/{clientSecret}:
+    parameters:
+      - in: path
+        name: clientSecret
+        schema:
+          type: string
+        required: true
+        description: The clientSecret of order
+    get:
+      tags:
+      - Orders
+      summary: Get order By payment secret
+      operationId: GetorderBypaymentsecret
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+  /orders/create-payment-intent:
+    post:
+      tags:
+      - Orders
+      summary: Create Payment Intent
+      operationId: CreatePaymentIntent
+      parameters: []
+      requestBody:
+        description: ''
+        content:
+          application/json:
+            schema:
+              allOf:
+              - $ref: '#/components/schemas/CreatePaymentIntentRequest'
+              - example:
+                  orderId: '123'
+            example:
+              orderId: '123'
+        required: true
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+  /orders/create-refund:
+    post:
+      tags:
+      - Orders
+      summary: Create Payment Intent Copy
+      operationId: CreatePaymentIntentCopy
+      parameters: []
+      requestBody:
+        description: ''
+        content:
+          application/json:
+            schema:
+              allOf:
+              - $ref: '#/components/schemas/CreatePaymentIntentCopyRequest'
+              - example:
+                  orderId: '123'
+            example:
+              orderId: '123'
+        required: true
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+  /orders:
+    get:
+      tags:
+      - Orders
+      summary: show my order
+      operationId: showmyorder
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+    post:
+      tags:
+      - Orders
+      summary: create order
+      operationId: createorder
+      parameters: []
+      requestBody:
+        description: ''
+        content:
+          application/json:
+            schema:
+              allOf:
+              - $ref: '#/components/schemas/createorderrequest'
+              - example:
+                  status: cart
+                  subtotal: 120
+                  shippingFee: 10
+                  total: 130
+                  items:
+                  - title: теперь 1 фотка
+                    price: 120
+                    amount: 2
+                    product: 63a713524a65ca6f4dce03ea
+                    image: /uploads/products/7.webp
+            example:
+              status: cart
+              subtotal: 120
+              shippingFee: 10
+              total: 130
+              items:
+              - title: теперь 1 фотка
+                price: 120
+                amount: 2
+                product: 63a713524a65ca6f4dce03ea
+                image: /uploads/products/7.webp
+        required: true
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+    delete:
+      tags:
+      - Orders
+      summary: delete order
+      operationId: deleteorder
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+      
+  /orders/{orderID}:
+    parameters:
+      - in: path
+        name: orderID
+        schema:
+          type: string
+        required: true
+        description: The order ID
+    patch:
+      tags:
+      - Orders
+      summary: update order
+      operationId: updateorder
+      parameters: []
+      requestBody:
+        description: ''
+        content:
+          application/json:
+            schema:
+              allOf:
+              - $ref: '#/components/schemas/updateorderrequest'
+              - {}
+        required: true
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+  /bookmarks:
+    get:
+      tags:
+      - Bookmarks
+      summary: getAllBookmarks
+      operationId: getAllBookmarks
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+    post:
+      tags:
+      - Bookmarks
+      summary: Create bookmark
+      operationId: Createbookmark
+      parameters: []
+      requestBody:
+        description: ''
+        content:
+          application/json:
+            schema:
+              allOf:
+              - $ref: '#/components/schemas/CreatebookmarkRequest'
+              - example:
+                  productId: 63a713524a65ca6f4dce03ea
+            example:
+              productId: 63a713524a65ca6f4dce03ea
+        required: true
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+    delete:
+      tags:
+      - Bookmarks
+      summary: delete bookmark
+      operationId: deletebookmark
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+  /statistics:
+    get:
+      tags:
+      - Statistics
+      summary: Get Vendor Statistics
+      operationId: GetVendorStatistics
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+  /statistics/{productID}:
+    parameters:
+      - in: path
+        name: productID
+        schema:
+          type: string
+        required: true
+        description: The product ID
+    get:
+      tags:
+      - Statistics
+      summary: Get Vendor Statistics For Certain Product
+      operationId: GetVendorStatisticsForCertainProduct
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+components:
+  schemas:
+    GetadsRequest:
+      title: GetadsRequest
+      required:
+      - adsConfig
+      type: object
+      properties:
+        adsConfig:
+          allOf:
+          - $ref: '#/components/schemas/AdsConfig'
+          - {}
+      example:
+        adsConfig:
+          long: 1
+          short: 1
+          half: 1
+          category: 1
+          longTall: 4
+    AdsConfig:
+      title: AdsConfig
+      required:
+      - long
+      - short
+      - half
+      - category
+      - longTall
+      type: object
+      properties:
+        long:
+          type: integer
+          format: int32
+        short:
+          type: integer
+          format: int32
+        half:
+          type: integer
+          format: int32
+        category:
+          type: integer
+          format: int32
+        longTall:
+          type: integer
+          format: int32
+      example:
+        long: 1
+        short: 1
+        half: 1
+        category: 1
+        longTall: 4
+    loginrequest:
+      title: loginrequest
+      required:
+      - email
+      - password
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+      example:
+        email: admin@gmail.com
+        password: '123456'
+    registerrequest:
+      title: registerrequest
+      required:
+      - email
+      - password
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+      example:
+        email: newUser@gmail.com
+        password: '123456'
+    updateuserrequest:
+      title: updateuserrequest
+      required:
+      - gender
+      type: object
+      properties:
+        gender:
+          type: string
+      example:
+        gender: Attack Helicopter
+    createproductrequest:
+      title: createproductrequest
+      required:
+      - description
+      - title
+      - price
+      type: object
+      properties:
+        description:
+          type: string
+        title:
+          type: string
+        price:
+          type: integer
+          format: int32
+      example:
+        description: lorem ipsum description
+        title: '11111'
+        price: 200
+    updateproductrequest:
+      title: updateproductrequest
+      required:
+      - description
+      - title
+      type: object
+      properties:
+        description:
+          type: string
+        title:
+          type: string
+      example:
+        description: new desc
+        title: new title 2
+    createReviewRequest:
+      title: createReviewRequest
+      required:
+      - productId
+      - rating
+      - title
+      - comment
+      type: object
+      properties:
+        productId:
+          type: string
+        rating:
+          type: integer
+          format: int32
+        title:
+          type: string
+        comment:
+          type: string
+      example:
+        productId: 639dd9fd056d0377d436dd79
+        rating: 1
+        title: im title
+        comment: im comment
+    updatesinglereviewrequest:
+      title: updatesinglereviewrequest
+      required:
+      - rating
+      type: object
+      properties:
+        rating:
+          type: integer
+          format: int32
+      example:
+        rating: 4
+    CreatePaymentIntentRequest:
+      title: CreatePaymentIntentRequest
+      required:
+      - orderId
+      type: object
+      properties:
+        orderId:
+          type: string
+      example:
+        orderId: '123'
+    CreatePaymentIntentCopyRequest:
+      title: CreatePaymentIntentCopyRequest
+      required:
+      - orderId
+      type: object
+      properties:
+        orderId:
+          type: string
+      example:
+        orderId: '123'
+    createorderrequest:
+      title: createorderrequest
+      required:
+      - status
+      - subtotal
+      - shippingFee
+      - total
+      - items
+      type: object
+      properties:
+        status:
+          type: string
+        subtotal:
+          type: integer
+          format: int32
+        shippingFee:
+          type: integer
+          format: int32
+        total:
+          type: integer
+          format: int32
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Item'
+          description: ''
+      example:
+        status: cart
+        subtotal: 120
+        shippingFee: 10
+        total: 130
+        items:
+        - title: теперь 1 фотка
+          price: 120
+          amount: 2
+          product: 63a713524a65ca6f4dce03ea
+          image: /uploads/products/7.webp
+    Item:
+      title: Item
+      required:
+      - title
+      - price
+      - amount
+      - product
+      - image
+      type: object
+      properties:
+        title:
+          type: string
+        price:
+          type: integer
+          format: int32
+        amount:
+          type: integer
+          format: int32
+        product:
+          type: string
+        image:
+          type: string
+      example:
+        title: теперь 1 фотка
+        price: 120
+        amount: 2
+        product: 63a713524a65ca6f4dce03ea
+        image: /uploads/products/7.webp
+    updateorderrequest:
+      title: updateorderrequest
+      required:
+      - status
+      - subtotal
+      - shippingFee
+      - total
+      - items
+      - discounts
+      type: object
+      properties:
+        status:
+          type: string
+        subtotal:
+          type: number
+        shippingFee:
+          type: number
+        total:
+          type: number
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Item'
+          description: ''
+        discounts:
+          type: array
+          items:
+            $ref: '#/components/schemas/Discount'
+          description: ''
+    Discount:
+      title: Discount
+      required:
+      - value
+      - type
+      type: object
+      properties:
+        value:
+          oneOf:
+          - type: number
+          - type: integer
+            format: int32
+        type:
+          type: string
+      example:
+        value: 0.99
+        type: percentage
+    deleteorderrequest:
+      title: deleteorderrequest
+      required:
+      - orderId
+      type: object
+      properties:
+        orderId:
+          type: string
+      example:
+        orderId: 63c579c934e639c425b27580
+    CreatebookmarkRequest:
+      title: CreatebookmarkRequest
+      required:
+      - productId
+      type: object
+      properties:
+        productId:
+          type: string
+      example:
+        productId: 63a713524a65ca6f4dce03ea
+    deletebookmarkrequest:
+      title: deletebookmarkrequest
+      required:
+      - productId
+      type: object
+      properties:
+        productId:
+          type: string
+      example:
+        productId: 63a713e34a65ca6f4dce03fd
+security:
+- {}
+tags:
+- name: Ads
+- name: Auth
+- name: User
+- name: Products
+- name: Reviews
+- name: Orders
+- name: Bookmarks
+- name: Statistics

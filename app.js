@@ -52,6 +52,16 @@ app.use(
 )
 app.use(express.static("./public"))
 
+const swaggerUI = require("swagger-ui-express")
+const yaml = require("yamljs")
+
+const swaggerDocument = yaml.load("./swagger.yaml")
+
+app.get("/", (req, res) => {
+	res.send(`<h1>ZOZO API</h1> <a href="/api/v1/docs">Documentation</a>`)
+})
+app.use("/api/v1/docs", swaggerUI.serve, swaggerUI.setup(swaggerDocument))
+
 app.use("/api/v1/auth", authRouter)
 app.use("/api/v1/users", authMiddleware(), userRouter)
 app.use("/api/v1/products", productRouter)

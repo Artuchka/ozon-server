@@ -98,24 +98,20 @@ function uploadFileToCloud(file, type) {
 }
 
 async function uploadToCloudController(buffer, type) {
-	try {
-		return await new Promise((resolve, reject) => {
-			let stream = cloudinary.uploader.upload_stream(
-				{ folder: "OZON", resource_type: type },
-				(error, result) => {
-					if (result) {
-						resolve(result)
-					} else {
-						reject(error)
-					}
+	return await new Promise((resolve, reject) => {
+		let stream = cloudinary.uploader.upload_stream(
+			{ folder: "OZON", resource_type: type },
+			(error, result) => {
+				if (result) {
+					resolve(result)
+				} else {
+					reject(error)
 				}
-			)
+			}
+		)
 
-			streamifier.createReadStream(buffer).pipe(stream)
-		})
-	} catch (error) {
-		console.log(error)
-	}
+		streamifier.createReadStream(buffer).pipe(stream)
+	})
 }
 
 module.exports = { uploadFileLocal, uploadToCloud }
