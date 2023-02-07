@@ -66,7 +66,8 @@ Thanks to my teachers:
 
 
 
-
+>### ©️License: 
+MIT license @Artuchka
 
 
 
