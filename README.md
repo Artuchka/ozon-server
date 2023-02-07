@@ -6,7 +6,7 @@
 
 >### 📚About the Project:
 
-&nbsp;&nbsp;My motivation was to showcase part(!) of my cool skills on creating complex REST API via Express and MongoDB.\
+&nbsp;&nbsp;My motivation was to showcase part(!) of my cool skills on creating complex REST API via Express and MongoDB.
 
 
 >### 🧰Technologies Used:
